@@ -1,0 +1,27 @@
+/* Carte: Snap-Map-style clustered map */
+/* ── Map view ── */
+#map-view{position:absolute;inset:0;background:#0b0b10}
+.maplibregl-map,.leaflet-container{background:#0b0b10;font-family:inherit}
+.bub-anchor{width:0;height:0;cursor:pointer}
+/* MapLibre hides a bubble on the far side of the globe with an inline opacity:0, but it stays clickable */
+.bub-anchor[style*="opacity: 0;"]{pointer-events:none}
+.map-base{display:flex}
+.map-base button{width:auto!important;padding:0 9px;font:600 12px/29px inherit;color:#333}
+.map-base button.on{background:var(--accent,#b388ff);color:#1a0033}
+#map-hud{position:absolute;top:10px;left:56px;z-index:600;background:#0009;color:#fff;
+  padding:7px 11px;border-radius:10px;font-size:12px;pointer-events:none;max-width:calc(100% - 80px)}
+#map-hud small{display:block;margin-top:3px;color:rgba(255,255,255,.6);font-size:11px}
+#map-note{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);z-index:650;width:min(520px,calc(100% - 32px));
+  background:rgba(23,23,31,.96);border:1px solid #ffb34766;border-radius:14px;padding:14px 38px 14px 16px;
+  color:rgba(255,255,255,.82);font-size:13.5px;line-height:1.5;box-shadow:0 10px 30px #0008}
+#map-note b:first-of-type{display:block;color:#ffcf7a;font-size:14.5px;margin-bottom:4px}
+#map-note code{font:12.5px ui-monospace,Menlo,monospace;color:#fff}
+#map-note .x{position:absolute;top:8px;right:10px;background:none;border:0;color:#fff;font-size:20px;cursor:pointer}
+.bub{position:relative;width:46px;height:62px;transform:translate(-50%,-100%)}
+.bub img{width:46px;height:62px;object-fit:cover;border-radius:12px;
+  border:2.5px solid var(--accent,#b388ff);box-shadow:0 3px 10px rgba(0,0,0,.6);background:#222;display:block}
+.bub .cnt{position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:10px;background:var(--accent,#b388ff);color:#1a0033;font-size:11px;font-weight:800;
+  line-height:18px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.bub .pin{position:absolute;left:50%;bottom:-6px;width:10px;height:10px;background:var(--accent,#b388ff);
+  transform:translateX(-50%) rotate(45deg);border-radius:2px}
