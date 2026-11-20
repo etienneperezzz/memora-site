@@ -36,7 +36,7 @@ window.addEventListener('resize', () => {
 // Translate the static HTML tab labels + search placeholder (no-op when LANG=fr).
 function applyLang() {
   if (LANG === 'fr') return;
-  const lbl = { 0: 'Mes Souvenirs', 2: 'Carte' };   // keep Chat Media + Rétro as-is
+  const lbl = { 0: 'Souvenirs', 2: 'Carte' };   // keep Chat Media + Rétro as-is
   document.querySelectorAll('.tab[data-tab]').forEach(tab => {
     const k = lbl[tab.dataset.tab];
     if (k) tab.textContent = t(k);

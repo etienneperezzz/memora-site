@@ -9,7 +9,7 @@ const LANG   = (new URLSearchParams(location.search).get('lang') || 'fr').slice(
 const LOCALE = { fr: 'fr-FR', en: 'en-GB', es: 'es-ES', de: 'de-DE' }[LANG] || 'fr-FR';
 const _I18N = {
   en: {
-    'Mes Souvenirs': 'My Memories', 'Carte': 'Map',
+    'Souvenirs': 'Memories', 'Carte': 'Map',
     'Aucun souvenir trouvé': 'No memories found', 'Aucun média trouvé': 'No media found',
     'Chargement des souvenirs…': 'Loading memories…', 'Chargement des médias…': 'Loading media…',
     'Rechercher dans les souvenirs…': 'Search your memories…', 'Rechercher dans les médias…': 'Search your media…',
@@ -33,7 +33,7 @@ const _I18N = {
     'Calcul des statistiques… (première fois, ~1 min)': 'Computing stats… (first time, ~1 min)',
   },
   es: {
-    'Mes Souvenirs': 'Mis Recuerdos', 'Carte': 'Mapa',
+    'Souvenirs': 'Recuerdos', 'Carte': 'Mapa',
     'Aucun souvenir trouvé': 'No se encontraron recuerdos', 'Aucun média trouvé': 'No se encontraron medios',
     'Chargement des souvenirs…': 'Cargando recuerdos…', 'Chargement des médias…': 'Cargando medios…',
     'Rechercher dans les souvenirs…': 'Busca en tus recuerdos…', 'Rechercher dans les médias…': 'Busca en tus medios…',
@@ -57,7 +57,7 @@ const _I18N = {
     'Calcul des statistiques… (première fois, ~1 min)': 'Calculando estadísticas… (la primera vez, ~1 min)',
   },
   de: {
-    'Mes Souvenirs': 'Meine Erinnerungen', 'Carte': 'Karte',
+    'Souvenirs': 'Erinnerungen', 'Carte': 'Karte',
     'Aucun souvenir trouvé': 'Keine Erinnerungen gefunden', 'Aucun média trouvé': 'Keine Medien gefunden',
     'Chargement des souvenirs…': 'Erinnerungen werden geladen…', 'Chargement des médias…': 'Medien werden geladen…',
     'Rechercher dans les souvenirs…': 'Durchsuche deine Erinnerungen…', 'Rechercher dans les médias…': 'Durchsuche deine Medien…',

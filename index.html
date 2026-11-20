@@ -28,7 +28,8 @@
 <meta name="twitter:title" content="Memorizzz : sauve tes memories Snapchat !">
 <meta name="twitter:description" content="Ton export Snapchat devient une galerie triée par jour, une carte, des stats et tes conversations, 100 % sur ton ordinateur. Achat unique dès 4,99 €, pas d'abonnement.">
 <meta name="twitter:image" content="https://memorizzz.com/og.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%236a34f0'/><path d='M4 17V7l6 6 6-10v15' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"WebSite","name":"Memorizzz","alternateName":"memorizzz.com","url":"https://memorizzz.com/"},
@@ -92,7 +93,7 @@
   body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:41;background:var(--bg)}
   .nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
   .brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;font-size:21px;letter-spacing:-.02em}
-  .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:var(--accent-ink);flex:none;box-shadow:0 6px 16px -6px var(--accent)}
+  .mark{width:36px;height:36px;flex:none;display:block}
   .nav-links{display:flex;align-items:center;gap:26px;font-size:14.5px;color:var(--muted);font-weight:500} .nav-links a:hover{color:var(--fg)}
   .nav-right{display:flex;align-items:center;gap:14px}
   .theme-toggle{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer} .theme-toggle:hover{background:var(--surface-2)}
@@ -309,7 +310,7 @@
 </head>
 <body>
 <nav><div class="wrap nav-in">
-  <div class="brand"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 17V7l6 6 6-10v15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Memorizzz</div>
+  <div class="brand"><img class="mark" src="/img/logo.png" alt="" width="36" height="36">Memorizzz</div>
   <div class="nav-links"><a href="#features">Fonctionnalités</a><a href="#engine">Sous le capot</a><a href="#why">Pourquoi maintenant</a><a href="#how">Comment ça marche</a><a href="#price">Prix</a><a href="/blog/">Blog</a></div>
   <div class="nav-right">
     <button class="theme-toggle" id="tt" aria-label="Changer de thème"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.4 1.4M17.6 17.6 19 19M19 5l-1.4 1.4M6.4 17.6 5 19"/></svg></button>
@@ -347,7 +348,7 @@
   <div class="features">
     <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 15 4-4 4 4 3-3 4 4"/><circle cx="8.5" cy="9" r="1.5"/></svg></div><h3>Galerie triée par jour</h3><p>Souvenirs et Chat Media rangés du plus récent au plus ancien, par journée, avec la durée de chaque vidéo et des miniatures instantanées, même sur des dizaines de milliers de médias.</p></div>
     <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Carte du monde</h3><p>Revis tes souvenirs là où tu les as vécus. Des bulles façon Snap Map, posées sur le lieu exact, se séparent dès que tu zoomes. Clique un lieu, retrouve ses photos.</p></div>
-    <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Tes stats en un clic</h3><p>Dans Mes Souvenirs, passe de la galerie aux statistiques : photos, vidéos, minutes filmées, pays visités, calendrier d'activité. Clique un jour pour y sauter direct.</p></div>
+    <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Tes stats en un clic</h3><p>Dans l'onglet Souvenirs, passe de la galerie aux statistiques : photos, vidéos, minutes filmées, pays visités, calendrier d'activité. Clique un jour pour y sauter direct.</p></div>
     <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></div><h3>Vidéos reconstituées</h3><p>Les clips que Snapchat a découpés en segments de 10 s sont recollés dans le bon ordre, sans perte de qualité, en vidéos entières.</p></div>
     <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"/></svg></div><h3>Tes conversations, comme dans l'app</h3><p>Groupes et discussions privées, avec photos, vidéos, vocaux et snaps à leur place. Recherche, saut à une date, tri par conversation récente ou la plus active, et les stats de chaque discussion.</p></div>
     <div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></div><h3>Vocaux en un geste</h3><p>Un toucher suffit pour écouter un vocal, avec ses barres qui s'animent comme sur Snapchat. Dans Chat Media, filtre par photos, vidéos ou vocaux, et par groupe ou conversation.</p></div>
@@ -482,7 +483,7 @@
 </div></section>
 
 <footer><div class="wrap foot-in">
-  <div class="brand" style="font-size:17px"><span class="mark" style="width:26px;height:26px" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 17V7l6 6 6-10v15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Memorizzz</div>
+  <div class="brand" style="font-size:17px"><img class="mark" src="/img/logo.png" alt="" width="30" height="30" style="width:30px;height:30px">Memorizzz</div>
   <div class="foot-links"><a href="#features">Fonctionnalités</a><a href="#price">Prix</a><a href="#faq">FAQ</a><a href="/blog/">Blog</a><a href="/mentions-legales/">Mentions légales</a><a href="/mentions-legales/#confidentialite">Confidentialité</a><a href="/mentions-legales/#cgv">CGV</a><a href="mailto:support@memorizzz.com">Contact</a><span>memorizzz.com</span></div>
   <div class="foot-links" aria-label="Langue"><a href="/">FR</a><a href="/en/">EN</a><a href="/es/">ES</a><a href="/de/">DE</a></div>
   <div>Tes souvenirs restent chez toi.</div>
@@ -537,7 +538,7 @@
         '<div class="rt-sec">Calendrier d\'activité</div><div class="rt-cal">'+cal+'</div></div>';
     }
   };
-  var TABS=[['souvenirs','Mes Souvenirs'],['media','Chat Media'],['carte','Carte'],['retro','Rétro']];
+  var TABS=[['souvenirs','Souvenirs'],['media','Chat Media'],['carte','Carte'],['retro','Rétro']];
 
   (function build(){
     var ui=document.getElementById('appui');
