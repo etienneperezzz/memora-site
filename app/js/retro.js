@@ -192,7 +192,10 @@ function scrollToDay(iso) {
   const scroll = () => {
     const el = $main.querySelector(`.date-group[data-date="${iso}"]`);
     if (!el) return false;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // scroll the list only: scrollIntoView also scrolls every ancestor, the page around the web demo's
+    // iframe included (the site, the laptop frame), which pushed the tab bar out of sight
+    const top = el.getBoundingClientRect().top - $scroll.getBoundingClientRect().top + $scroll.scrollTop;
+    $scroll.scrollTo({ top, behavior: 'smooth' });
     el.classList.add('jumped');
     setTimeout(() => el.classList.remove('jumped'), 1500);
     return true;

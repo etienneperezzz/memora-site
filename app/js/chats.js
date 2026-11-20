@@ -492,7 +492,7 @@ function _chRename(btn) {
   input.setAttribute('aria-label', 'Renommer');
   shown.replaceWith(input);
   if (head) btn.hidden = true;
-  input.focus();
+  input.focus({ preventScroll: true });
   input.select();
   let done = false;
   const finish = async save => {
