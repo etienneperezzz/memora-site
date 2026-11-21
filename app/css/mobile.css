@@ -1,0 +1,154 @@
+/* Touch adaptations of the desktop UI for the phone (loaded after its own CSS). */
+:root { --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); }
+html, body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+body { -webkit-user-select: none; user-select: none; }   /* safe areas: #mz-top and the dock (below) */
+.tab, .sel-btn { min-height: 44px; }   /* not every button: it made small ones oval (voice notes) or huge (segments) */
+button, [role="button"] { touch-action: manipulation; }
+input, textarea, select { font-size: 16px !important; -webkit-user-select: text; user-select: text; }   /* iOS zooms in below 16 px */
+/* a long press shows no loupe, callout or text selection (it plays at 2× in the viewer and on voice notes) */
+#lightbox, #lightbox *, .vn, .vn * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* desktop-only actions */
+#sel-demo { display: none !important; }
+
+/* ── iPhone shell: slim top bar (#mz-top, made by bridge.ts) + floating tab dock at the bottom ── */
+:root { --dock-h: 58px; --dock-gap: calc(10px + var(--safe-bottom)); }
+#app { height: 100%; max-width: none; border: 0; padding-bottom: calc(var(--dock-h) + var(--dock-gap) + 6px); }
+body:has(#lic-bar.on) #app { padding-bottom: calc(var(--dock-h) + var(--dock-gap) + 62px); }
+#mz-top { display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding: calc(var(--safe-top) + 2px) 8px 4px 14px; background: var(--bg); }
+#mz-top img { width: 26px; height: 26px; border-radius: 7px; }
+#mz-top b { font-size: 20px; letter-spacing: -0.02em; margin-left: 8px; flex: 1; }
+#mz-top .refresh-btn { margin: 0; width: 40px; height: 40px; color: rgba(255,255,255,.75); }
+#refresh-btn { display: none !important; }   /* no server to rescan on the phone */
+.tabs { position: fixed; left: 12px; right: 12px; bottom: var(--dock-gap); z-index: 150; padding: 0; border-radius: 26px;
+  background: rgba(30,30,36,.78); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,.09); box-shadow: 0 10px 30px rgba(0,0,0,.55); }
+.tabs-row { height: var(--dock-h); padding: 5px; gap: 2px; }
+.tabs .tab { display: flex; align-items: center; justify-content: center; height: 100%; padding: 0;
+  border-radius: 22px; color: rgba(255,255,255,.5); transition: background .2s, color .2s; }
+.tabs .tab svg { width: 25px; height: 25px; }
+.tabs .tab.active { background: rgba(255,255,255,.13); color: #fff; }
+.tab-indicator { display: none; }
+#lic-bar { left: 12px; right: 12px; bottom: calc(var(--dock-h) + var(--dock-gap) + 8px); border-radius: 16px; border: 1px solid rgba(255,255,255,.1);
+  padding: 6px 6px 6px 14px; flex-wrap: nowrap; justify-content: space-between; font-size: 12.5px; min-height: 0; }
+#lic-bar button { min-height: 36px; padding: 6px 14px; flex-shrink: 0; }
+/* 4 previews per row, smaller souvenir cards */
+.media-grid { grid-template-columns: repeat(4, 1fr); }
+.souvenirs { gap: 8px; padding: 2px 12px 10px; }
+.souv-card { width: 112px; height: 148px; border-radius: 14px; }
+.souv-title { font-size: 13px; }
+.souv-sub { font-size: 10.5px; }
+.mem-seg { padding: 4px 14px 6px; }
+/* Chat Media: the search field opens from the top bar's magnifier (shell.js); filters scroll sideways */
+.search-wrap { padding: 4px 12px 6px; }
+.search-wrap .search-inner { display: none; }
+.search-wrap.mz-open .search-inner { display: flex; margin-bottom: 8px; }
+#mz-search[hidden] { display: none; }
+.cm-filters { margin-top: 0; }
+/* compact segments (Souvenirs | Stats, Messages | Stats) */
+.ch-seg button { padding: 5px 11px; font-size: 12.5px; }
+.ch-head { gap: 8px; padding: 8px 10px; }
+/* viewer: the header above the photo or video and the time / place below it, never over the
+   video's own controls (full screen at the top, progress bar at the bottom) */
+#lightbox .lb-header { position: relative; flex-shrink: 0; padding: calc(var(--safe-top) + 4px) 12px 8px; background: #000; }
+#lightbox .lb-meta { position: static; flex-shrink: 0; padding: 8px 14px calc(var(--safe-bottom) + 10px); max-width: none; background: #000; }
+#lightbox.clean .lb-header { display: none; }
+#lightbox.fast::after { top: calc(var(--safe-top) + 10px); }
+
+/* map: its counter under the basemap switch, without the long note */
+#map-hud { top: 50px; left: 56px; }
+#map-hud small { display: none; }
+
+/* first launch (src/onboard.ts), same look as the desktop wizard (setup.html) */
+#mz-onboard { position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column; overflow-y: auto;
+  padding: calc(12px + var(--safe-top)) 20px calc(24px + var(--safe-bottom)); background: #0b0b10; color: #fff;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+#mz-onboard .mz-top { display: flex; align-items: center; justify-content: space-between; }
+#mz-onboard .mz-back { background: none; border: 0; color: #9a9a9a; font-size: 16px; padding: 0 8px 0 0; visibility: hidden; }
+#mz-onboard #mz-count { font-size: 12.5px; color: #9a9a9a; font-weight: 600; }
+#mz-onboard .mz-steps { display: flex; gap: 6px; margin: 6px 0 0; }
+#mz-onboard .mz-steps span { flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: #fff; font-weight: 600; }
+#mz-onboard .mz-steps i { height: 4px; border-radius: 4px; background: rgba(255,255,255,.12); }
+#mz-onboard .mz-steps .done i, #mz-onboard .mz-steps .cur i { background: #b388ff; }
+#mz-onboard .mz-card { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 440px;
+  margin: 0 auto; text-align: center; padding: 20px 0; }
+#mz-onboard section { display: none; animation: mz-in .28s ease; }
+#mz-onboard section.on { display: block; }
+@keyframes mz-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#mz-onboard .mz-logo { display: block; width: 84px; height: 84px; margin: 0 auto 18px; }
+#mz-onboard h1 { font-size: 24px; margin: 0 0 10px; }
+#mz-onboard .mz-accent { color: #b388ff; }
+#mz-onboard p { color: #a3a0b2; font-size: 15px; line-height: 1.5; margin: 0 0 22px; }
+#mz-onboard .mz-small { font-size: 13px; margin: 16px 0 0; }
+#mz-onboard .mz-err { color: #ffb3b3; }
+#mz-onboard .mz-err:empty { display: none; }
+#mz-onboard .mz-btn { display: block; width: 100%; margin: 10px 0; padding: 14px; border-radius: 14px; font-size: 16px; text-decoration: none;
+  font-weight: 600; border: 1px solid rgba(255,255,255,.15); background: transparent; color: #fff; }
+#mz-onboard .mz-btn.primary { background: #b388ff; color: #1a0033; border: 0; }
+#mz-onboard .mz-choice { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; margin: 0 0 12px;
+  padding: 20px 16px; border-radius: 18px; border: 1.5px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
+  color: #fff; font-size: 16px; font-weight: 600; }
+#mz-onboard .mz-choice:active { border-color: #b388ff; background: rgba(179,136,255,.08); }
+#mz-onboard .mz-choice svg { width: 32px; height: 32px; color: #b388ff; }
+#mz-onboard .mz-choice small { color: #9a9a9a; font-weight: 500; font-size: 13px; }
+#mz-onboard .mz-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+#mz-onboard .mz-track::-webkit-scrollbar { display: none; }
+#mz-onboard .mz-slide { flex: 0 0 100%; scroll-snap-align: center; }
+#mz-onboard .mz-shot { height: min(46vh, 380px); border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  overflow: hidden; display: flex; align-items: center; justify-content: center; }
+#mz-onboard .mz-shot img { width: 100%; height: 100%; object-fit: contain; }
+#mz-onboard .mz-mock { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #9a9a9a; font-size: 12px; }
+#mz-onboard .mz-mock svg { width: 64px; height: 64px; color: #b388ff; }
+#mz-onboard .mz-slide p { color: #fff; margin: 14px 0 0; }
+#mz-onboard .mz-slide p b { color: #b388ff; }
+#mz-onboard .mz-hint { display: inline-block; margin-top: 10px; font-size: 13px; color: #ffd58a; background: rgba(255,179,71,.06);
+  border: 1px solid rgba(255,179,71,.33); border-radius: 99px; padding: 5px 12px; }
+#mz-onboard .mz-dots { display: flex; gap: 7px; justify-content: center; margin: 16px 0 6px; }
+#mz-onboard .mz-dots button { width: 8px; height: 8px; min-height: 0; padding: 0; border: 0; border-radius: 99px; background: rgba(255,255,255,.18); }
+#mz-onboard .mz-dots button.on { width: 22px; background: #b388ff; }
+@media (prefers-reduced-motion: reduce) { #mz-onboard section { animation: none; } }
+
+/* import panel (src/importer.ts) */
+#mz-import { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,.6); display: flex; align-items: flex-end;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; }
+#mz-import .mz-sheet { width: 100%; max-height: 92vh; overflow: auto; background: #15151f; border-radius: 20px 20px 0 0;
+  padding: 18px 20px calc(24px + var(--safe-bottom)); }
+#mz-import .mz-head { display: flex; align-items: center; justify-content: space-between; }
+#mz-import h2 { font-size: 20px; margin: 0; } #mz-import h3 { font-size: 15px; margin: 22px 0 8px; }
+#mz-import .mz-x { background: none; border: 0; color: #a3a0b2; font-size: 20px; }
+#mz-import .mz-lead, #mz-import p { color: #a3a0b2; font-size: 14.5px; line-height: 1.5; }
+#mz-import .mz-small { font-size: 12.5px; color: #8a8698; }
+#mz-import .mz-btn { display: block; width: 100%; margin: 12px 0; padding: 14px; border-radius: 14px; font-size: 16px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.15); background: transparent; color: #fff; }
+#mz-import .mz-btn.primary { background: #FFFC00; color: #111; border: 0; }
+#mz-import .mz-btn:disabled { background: #3a3946; color: #8a8698; }
+#mz-import .mz-files { list-style: none; padding: 0; margin: 8px 0; font-size: 14px; }
+#mz-import .mz-files li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+#mz-import .mz-files span { color: #8a8698; }
+#mz-import .mz-where { display: flex; gap: 10px; align-items: center; justify-content: space-between; font-size: 13px; word-break: break-all; }
+#mz-import .mz-link { background: none; border: 0; color: #b398ff; font-weight: 600; font-size: 15px; }
+#mz-import .mz-check { display: flex; gap: 10px; align-items: center; padding: 8px 0; font-size: 15px; }
+#mz-import .mz-check input { width: 22px; height: 22px; }
+#mz-import .mz-bar { height: 10px; border-radius: 6px; background: rgba(255,255,255,.1); overflow: hidden; }
+#mz-import .mz-bar > div { height: 100%; width: 0; background: #4ade80; transition: width .3s; }
+#mz-import #mz-fill.tight { background: #fb923c; } #mz-import #mz-fill.full { background: #f87171; }
+#mz-import #mz-prog { background: #FFFC00; }
+#mz-import .mz-space { font-weight: 600; color: #fff; margin: 8px 0; }
+#mz-import .mz-warn { border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; background: rgba(251,146,60,.12); }
+#mz-import .mz-warn.full { background: rgba(248,113,113,.14); }
+#mz-import .mz-warn ul { margin: 6px 0 0; padding-left: 18px; color: #d6d3e0; }
+#mz-import .mz-warn a { color: #b398ff; }
+
+/* ── in-app purchase (store.ts) ── */
+#lic-modal #mz-restore { display: block; margin: 6px auto 14px; }
+#lic-modal .lic-btn:disabled { opacity: .5; }
+#mz-deskkey h3 { margin: 18px 0 4px; font-size: 15px; }
+.mz-keybox { background: #0d0d12; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 12px;
+  color: #d4bbff; font: 12px/1.5 ui-monospace, Menlo, monospace; word-break: break-all; user-select: all; -webkit-user-select: all; margin: 8px 0; }
+.mz-row { display: flex; gap: 8px; margin: 8px 0; }
+.mz-row input { flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: #0d0d12; color: #fff; padding: 0 12px; font-size: 16px; }
+#mz-deskkey #mz-done { width: 100%; margin-top: 14px; }
+#lic-modal .mz-btn, #lic-modal .mz-link { font-size: 15px; font-weight: 600; }
+#lic-modal .mz-btn { padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.15); background: #1d1d29; color: #fff; }
+#lic-modal .mz-btn.primary { background: #b398ff; color: #190a33; border: 0; }
+#lic-modal .mz-link { background: none; border: 0; color: #b398ff; }
+#lic-modal .mz-small { font-size: 13px; color: #a3a0b2; }
