@@ -72,7 +72,7 @@
       + row('Miniatures', `<span class="path">${esc(d.cacheDir)}</span><small>${mb(d.cacheBytes)} en cache, recréées si besoin.</small>`, openBtn(d.cacheDir)) : '')
       + '<h3>À propos</h3>'
       + row('Version', esc(d.version))
-      + row('Aide', '<a href="mailto:support@memorizzz.com" style="color:#FFFC00">support@memorizzz.com</a>'
+      + row('Aide', '<a href="mailto:contact@memorizzz.com" style="color:#FFFC00">contact@memorizzz.com</a>'
             + '<small><a href="https://memorizzz.com/mentions-legales/" target="_blank" rel="noopener" style="color:inherit">Mentions légales</a></small>')
       + '<p class="foot">Lieux : GeoNames (CC BY 4.0). Carte : © OpenStreetMap.<br>'
       + 'Non affilié à Snap Inc. Snapchat est une marque de Snap Inc.</p>';
