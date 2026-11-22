@@ -171,6 +171,11 @@ function _initGlobe() {
   // A move from the viewer (drag, wheel, touch, keys, +/- buttons) carries originalEvent;
   // resizes (tab switch, window) and our own spin don't.
   _map.on('movestart', e => { if (e.originalEvent) _spin = false; });
+  // ...and as soon as a finger or the mouse is down on the map: waiting for MapLibre to see a drag let the
+  // next spin step start under the finger, and the two fought for a moment (the map felt stuck)
+  const stopSpin = () => { if (_spin) { _spin = false; _map.stop(); } };
+  for (const ev of ['pointerdown', 'touchstart', 'wheel'])
+    _map.getCanvasContainer().addEventListener(ev, stopSpin, { capture: true, passive: true });
   // Next frame: starting an ease from inside moveend re-enters MapLibre's camera loop.
   _map.on('moveend', () => { _render(); requestAnimationFrame(_spinStep); });
   _map.on('load', _spinStep);

@@ -113,7 +113,8 @@ function renderStats(s) {
   const ymax = Math.max(1, ...Object.values(s.perYear));
   const yearBars = years.map(y => {
     const n = s.perYear[y];
-    return `<div class="col" data-year="${y}" title="${y} · ${n} souvenirs">
+    return `<div class="col" data-year="${y}">
+      <div class="nv">${n.toLocaleString(LOCALE)}</div>
       <div class="bar" style="height:${Math.round(n / ymax * 110)}px"></div>
       <div class="xl">${y.slice(2)}</div></div>`;
   }).join('');

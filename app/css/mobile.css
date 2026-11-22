@@ -12,15 +12,23 @@ input, textarea, select { font-size: 16px !important; -webkit-user-select: text;
 
 /* ── iPhone shell: slim top bar (#mz-top, made by bridge.ts) + floating tab dock at the bottom ── */
 :root { --dock-h: 58px; --dock-gap: calc(10px + var(--safe-bottom)); }
-#app { height: 100%; max-width: none; border: 0; padding-bottom: calc(var(--dock-h) + var(--dock-gap) + 6px); }
-body:has(#lic-bar.on) #app { padding-bottom: calc(var(--dock-h) + var(--dock-gap) + 62px); }
+/* the dock floats over the content: the list runs on underneath (seen through the blur), and its inner
+   bottom margin lets the last row scroll up above the dock (and the plan bar when shown) */
+:root { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 12px); }
+body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66px); }
+#app { height: 100%; max-width: none; border: 0; }
+#content { padding-bottom: var(--under-dock); }
+#chats-view { padding-bottom: 0; }
+/* map (under the dock too): its bottom controls and the Esri credit stay above it */
+.maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .leaflet-bottom { margin-bottom: var(--under-dock); }
+#map-note { bottom: calc(var(--under-dock) + 10px); }
 #mz-top { display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding: calc(var(--safe-top) + 2px) 8px 4px 14px; background: var(--bg); }
 #mz-top img { width: 26px; height: 26px; border-radius: 7px; }
 #mz-top b { font-size: 20px; letter-spacing: -0.02em; margin-left: 8px; flex: 1; }
 #mz-top .refresh-btn { margin: 0; width: 40px; height: 40px; color: rgba(255,255,255,.75); }
 #refresh-btn { display: none !important; }   /* no server to rescan on the phone */
 .tabs { position: fixed; left: 12px; right: 12px; bottom: var(--dock-gap); z-index: 150; padding: 0; border-radius: 26px;
-  background: rgba(30,30,36,.78); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  background: rgba(30,30,36,.62); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
   border: 1px solid rgba(255,255,255,.09); box-shadow: 0 10px 30px rgba(0,0,0,.55); }
 .tabs-row { height: var(--dock-h); padding: 5px; gap: 2px; }
 .tabs .tab { display: flex; align-items: center; justify-content: center; height: 100%; padding: 0;
@@ -29,6 +37,7 @@ body:has(#lic-bar.on) #app { padding-bottom: calc(var(--dock-h) + var(--dock-gap
 .tabs .tab.active { background: rgba(255,255,255,.13); color: #fff; }
 .tab-indicator { display: none; }
 #lic-bar { left: 12px; right: 12px; bottom: calc(var(--dock-h) + var(--dock-gap) + 8px); border-radius: 16px; border: 1px solid rgba(255,255,255,.1);
+  background: rgba(24,24,30,.74); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   padding: 6px 6px 6px 14px; flex-wrap: nowrap; justify-content: space-between; font-size: 12.5px; min-height: 0; }
 #lic-bar button { min-height: 36px; padding: 6px 14px; flex-shrink: 0; }
 /* 4 previews per row, smaller souvenir cards */

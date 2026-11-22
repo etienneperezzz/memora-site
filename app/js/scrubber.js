@@ -25,9 +25,10 @@ function buildScrubber() {
 }
 
 function positionScrubber() {
-  const r = $scroll.getBoundingClientRect();
+  // the content's inner bottom margin (phone: room under the floating dock) is not timeline
+  const r = $scroll.getBoundingClientRect(), pad = parseFloat(getComputedStyle($scroll).paddingBottom) || 0;
   $scrub.style.top = r.top + 'px';
-  $scrub.style.height = r.height + 'px';
+  $scrub.style.height = (r.height - pad) + 'px';
 }
 
 // ── Month targeting: hover/drag shows the exact month in the bubble, release

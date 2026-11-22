@@ -17,6 +17,7 @@ async function buildSouvenirs() {
   if (_tripsData === null) {
     try { _tripsData = await getJSON('/api/trips?source=memories', 'trips_memories.json'); }
     catch (e) { _tripsData = []; }
+    if (currentSource !== 'memories' || currentView !== 'list') return;   // left Souvenirs while the trips were computed
   }
   renderSouvenirs();
 }

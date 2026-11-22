@@ -61,9 +61,11 @@
   border-bottom:1px solid rgba(255,255,255,.07)}
 .ch-back{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;
   display:flex;align-items:center;justify-content:center;cursor:pointer}
-.ch-htxt{flex:1;min-width:0}
+.ch-htxt{flex:1 1 calc(100% - 52px);min-width:0}   /* the whole first line: the tools wrap to a second one */
 .ch-htitle{display:flex;align-items:center;gap:4px;min-width:0;font-size:15.5px;font-weight:700}
-.ch-hname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-hname{overflow-wrap:anywhere}   /* the conversation's name always in full */
+.ch-head .ch-seg{margin-left:auto}
+.ch-head .ch-menu{left:0;right:auto}   /* its icon now starts the second line */
 /* names given in the app: pencil (one-to-one), sender's name (group), inline field */
 .ch-rename{flex:none;width:26px;height:26px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer;
   color:rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center}

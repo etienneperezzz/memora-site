@@ -3,25 +3,29 @@
 'use strict';
 
 // ── Load ─────────────────────────────────────────────────────────────────────
+// One request per source at a time (a tab switch while it loads reuses it). The list is stored under the
+// source it was ASKED for and drawn only if that tab is still the one on screen: before, a slow Souvenirs
+// list arriving after a switch to Chat Media was drawn and cached as Chat Media (souvenirs carousel included).
+const _mediaPending = {};
 async function load() {
-  if (_mediaCache[currentSource]) {          // instant re-visit, no refetch
-    allGroups = _mediaCache[currentSource];
+  const src = currentSource;
+  const show = groups => {
+    allGroups = groups;
     buildChatFilters();
     applyFilters();
     buildScrubber();
     buildSouvenirs();
-    return;
-  }
-  $main.innerHTML = `<div class="state-view"><div class="spinner"></div><span>${sourceLoading[currentSource] || 'Chargement…'}</span></div>`;
+  };
+  if (_mediaCache[src]) { show(_mediaCache[src]); return; }   // instant re-visit, no refetch
+  if (src !== 'memories') $souv.hidden = true;   // the souvenirs carousel belongs to Souvenirs, even while this loads
+  $main.innerHTML = `<div class="state-view"><div class="spinner"></div><span>${sourceLoading[src] || 'Chargement…'}</span></div>`;
   try {
-    allGroups = await getJSON('/api/media?source=' + encodeURIComponent(currentSource), 'media_' + currentSource + '.json');
-    _mediaCache[currentSource] = allGroups;
-    buildChatFilters();
-    applyFilters();
-    buildScrubber();
-    buildSouvenirs();
+    const groups = await (_mediaPending[src] ||= getJSON('/api/media?source=' + encodeURIComponent(src), 'media_' + src + '.json')
+      .finally(() => { delete _mediaPending[src]; }));
+    _mediaCache[src] = groups;
+    if (src === currentSource && currentView === 'list') show(groups);   // else drawn when the tab comes back
   } catch (e) {
-    $main.innerHTML = `<div class="state-view"><span>Erreur : ${e.message}</span></div>`;
+    if (src === currentSource) $main.innerHTML = `<div class="state-view"><span>Erreur : ${e.message}</span></div>`;
   }
 }
 
@@ -302,6 +306,10 @@ function tap(cell, e) {
 // ── Selection ────────────────────────────────────────────────────────────────
 function enterSelect() {
   selecting = true;
+  // the actions this platform has: phone (MEMORA_NATIVE: Photos + share sheet), computer (export to a folder)
+  $selDl.style.display = _selExport() ? '' : 'none';
+  $selShare.style.display = window.MEMORA_NATIVE && window.MEMORA_NATIVE.shareItems ? '' : 'none';
+  if (window.MEMORA_NATIVE && window.MEMORA_NATIVE.exportLabel) $selDl.querySelector('span').textContent = window.MEMORA_NATIVE.exportLabel;
   $main.classList.add('selecting');
   $selBar.classList.add('visible');
 }
@@ -325,6 +333,32 @@ function updateCount() {
   $selCnt.textContent = n <= 1 ? `${n} sélectionné` : `${n} sélectionnés`;
 }
 $selCancel.addEventListener('click', exitSelect);
+
+// ── Selection actions: Exporter (phone: into Photos, computer: copies in a folder) and Partager (phone) ──
+const $selDl = document.getElementById('sel-dl'), $selShare = document.getElementById('sel-share');
+const _selExport = () => DEMO ? null
+  : window.MEMORA_NATIVE && window.MEMORA_NATIVE.exportItems ? (s, rels) => window.MEMORA_NATIVE.exportItems(s, rels)
+  : window.pywebview && window.pywebview.api && window.pywebview.api.export_media ? async (s, rels) => {
+      const r = await window.pywebview.api.export_media(s, rels);
+      if (!r || !r.ok) return r && r.cancelled ? '' : 'Export impossible';
+      return `${r.n} exporté${r.n > 1 ? 's' : ''}`;
+    }
+  : null;
+async function selAction(btn, run) {
+  const rels = [...chosen].map(i => flatItems[i]).filter(Boolean).map(it => it.path);
+  if (!rels.length || btn.classList.contains('busy')) return;
+  btn.classList.add('busy');
+  const label = $selCnt.textContent;
+  $selCnt.textContent = '…';
+  try {
+    const msg = await run(currentSource, rels);
+    $selCnt.textContent = msg || label;
+    if (msg) setTimeout(exitSelect, 1600);
+  } catch (e) { $selCnt.textContent = 'Erreur : ' + e.message; }
+  btn.classList.remove('busy');
+}
+$selDl.addEventListener('click', () => { const run = _selExport(); if (run) selAction($selDl, run); });
+$selShare.addEventListener('click', () => selAction($selShare, (s, rels) => window.MEMORA_NATIVE.shareItems(s, rels)));
 
 // Demo picker: push the current selection to the server (build_demo.py --selection).
 // Developer tool: shown only when the app runs from source (/api/license → dev).
