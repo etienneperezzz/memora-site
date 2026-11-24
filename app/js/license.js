@@ -5,12 +5,14 @@
 // ── Plans + unlock (server mode only; the static demo shows everything) ──────
 (function licenseUI(){
   if (DEMO) return;
-  const LS_CHECKOUT_PRO = 'https://memora-app.lemonsqueezy.com/checkout/buy/326ff2c3-ddeb-4f2f-ac83-09b4007a5444';
-  // Shared checkout: this link shows both variants (Essentiel 4,99 € / Illimité 19,99 €) and the
-  // buyer picks. The plan is decided server-side from the variant actually bought (Worker planFor,
-  // STARTER_VARIANT_IDS), so both buttons can point here. Swap for a per-variant link when available.
-  const LS_CHECKOUT_STARTER = LS_CHECKOUT_PRO;
-  const STARTER_READY = !LS_CHECKOUT_STARTER.includes('REMPLACER');
+  // Polar checkout links (polar.sh, Merchant of Record — Apple Pay / Google Pay in the hosted page).
+  // One per product: Polar dashboard → product → "Checkout Link". The plan is also decided server-side
+  // from the product bought (Worker planFor, STARTER_PRODUCT_IDS). Until a link is set it shows
+  // "Bientôt disponible" (keep the REMPLACER marker so the button stays disabled).
+  const POLAR_CHECKOUT_PRO = 'https://buy.polar.sh/polar_cl_g1ombdP98uJ0rwEkEP04jmGkqT5VMGCBUHlH400YUKn';
+  const POLAR_CHECKOUT_STARTER = 'https://buy.polar.sh/polar_cl_GSaU7WnzRaJtHwn6fM4k7wms8Lg3IbD7AMJRe1NQcdx';
+  const PRO_READY = !POLAR_CHECKOUT_PRO.includes('REMPLACER');
+  const STARTER_READY = !POLAR_CHECKOUT_STARTER.includes('REMPLACER');
   const nf = n => (n || 0).toLocaleString(LOCALE);
 
   const bar = document.createElement('div');
@@ -35,7 +37,7 @@
         <div class="nm">Illimité <span class="tag">Tout ton export</span></div>
         <div class="pr">19,99&nbsp;€<small> une fois</small></div>
         <ul><li>Tous tes souvenirs</li><li>Tous tes Chat Media</li><li>Toutes tes conversations</li></ul>
-        <a class="lic-btn primary" href="${LS_CHECKOUT_PRO}" target="_blank" rel="noopener">Choisir Illimité</a>
+        <a class="lic-btn primary" id="lic-buy-pro" target="_blank" rel="noopener">Choisir Illimité</a>
       </div>
     </div>
     <div class="lic-key"><input id="lic-input" placeholder="Colle ta clé de licence" autocomplete="off"><button class="lic-btn sec" id="lic-activate">Activer</button></div>
@@ -44,8 +46,12 @@
   document.body.appendChild(modal);
 
   const buyStarter = document.getElementById('lic-buy-starter');
-  if (STARTER_READY) { buyStarter.href = LS_CHECKOUT_STARTER; buyStarter.textContent = 'Choisir Essentiel'; }
+  if (STARTER_READY) { buyStarter.href = POLAR_CHECKOUT_STARTER; buyStarter.textContent = 'Choisir Essentiel'; }
   else { buyStarter.removeAttribute('href'); buyStarter.textContent = 'Bientôt disponible'; buyStarter.classList.add('off'); }
+
+  const buyPro = document.getElementById('lic-buy-pro');
+  if (PRO_READY) { buyPro.href = POLAR_CHECKOUT_PRO; }
+  else { buyPro.removeAttribute('href'); buyPro.textContent = 'Bientôt disponible'; buyPro.classList.add('off'); }
 
   async function refresh(){
     try {

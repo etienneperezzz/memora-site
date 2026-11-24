@@ -191,7 +191,9 @@ function renderStats(s) {
 // mount; then the observer fills it. Retries once while the list is still loading.
 function scrollToDay(iso) {
   const scroll = () => {
-    const el = $main.querySelector(`.date-group[data-date="${iso}"]`);
+    let el = $main.querySelector(`.date-group[data-date="${iso}"]`);
+    if (!el)   // grid grouped by month/year: land on the bucket that contains the day (groups are newest-first)
+      for (const dg of $main.querySelectorAll('.date-group')) { if (dg.dataset.date >= iso) el = dg; else break; }
     if (!el) return false;
     // scroll the list only: scrollIntoView also scrolls every ancestor, the page around the web demo's
     // iframe included (the site, the laptop frame), which pushed the tab bar out of sight

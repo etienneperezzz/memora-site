@@ -21,6 +21,7 @@
       <li><b>Rien n'est écrasé</b>, tes souvenirs restent en place</li>
       <li><b>Les doublons sont ignorés</b>, le nouveau s'ajoute à ta galerie</li>
     </ul>
+    <label id="imp-delzips" hidden><input type="checkbox" checked> Supprimer les .zip une fois importés</label>
     <div id="imp-msg"></div>
     <div id="imp-prog" hidden></div>
     <p id="imp-bg" hidden>Tu peux fermer cette fenêtre et continuer à parcourir tes photos : l'import continue en arrière-plan.</p>
@@ -44,6 +45,8 @@
   const log = q('#imp-log'), msgEl = q('#imp-msg'), progEl = q('#imp-prog'), bgNote = q('#imp-bg');
   const intro = q('#imp-intro'), pickBtn = q('#imp-pick');
   const closeBtn = q('#imp-close'), recheck = q('#imp-recheck'), logToggle = q('#imp-logtoggle'), copyBtn = q('#imp-copy');
+  const delZips = q('#imp-delzips');
+  let deleteZips = false;   // what the box said when the zips were picked
   let busy = false, pending = [], prog = null, last = { pct: 0, label: '', status: 'running' }, hideTimer = null;
   let _liveTimer = null;
 
@@ -127,7 +130,7 @@
     recheck.disabled = true; recheck.textContent = 'Vérification…';
     const r = await api.check_space(pending);
     recheck.disabled = false; recheck.textContent = 'Revérifier et importer';
-    intro.hidden = true; pickBtn.hidden = true;
+    intro.hidden = true; pickBtn.hidden = true; delZips.hidden = true;
     openModal();
     if (!r.ok){
       msgEl.textContent = '⚠️ ' + r.msg;
@@ -139,7 +142,7 @@
     await ensureProg();
     log.textContent = '▶ Import de ' + pending.length + ' fichier(s)…';
     showRunning();
-    api.run_import(pending);
+    api.run_import(pending, deleteZips);
   }
   recheck.addEventListener('click', tryStart);
 
@@ -188,14 +191,14 @@
     msgEl.textContent = '';
     for (const el of [progEl, bgNote, logToggle, log, copyBtn, recheck]) el.hidden = true;
     logToggle.textContent = 'Afficher le détail';
-    intro.hidden = false; pickBtn.hidden = false;
+    intro.hidden = false; pickBtn.hidden = false; delZips.hidden = false;
     openModal();
     pickBtn.focus();
   });
   pickBtn.addEventListener('click', async () => {
     const zips = await window.pywebview.api.pick_exports();
     if (!zips || !zips.length) return;
-    pending = zips;
+    pending = zips; deleteZips = delZips.querySelector('input').checked;
     q('h3').textContent = 'Ajouter un export Snapchat';
     tryStart();
   });
@@ -205,6 +208,7 @@
     if (!hasApi() || busy || !window.pywebview.api.raw_exports) return;
     pending = await window.pywebview.api.raw_exports();
     if (!pending.length) return;
+    deleteZips = false;   // folders of raw/, no zip
     q('h3').textContent = title || 'Import du reste de ta bibliothèque';
     tryStart();
   };

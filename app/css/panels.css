@@ -73,6 +73,9 @@
 #imp-modal .box{background:#17171f;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px;max-width:520px;width:100%;color:#fff;
   --mp-accent:#FFFC00;--mp-mut:rgba(255,255,255,.55);--mp-ink:#fff}
 #imp-modal h3{margin:0 0 14px;font-size:17px}
+#imp-delzips{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer}
+#imp-delzips[hidden]{display:none}
+#imp-delzips input{accent-color:#FFFC00;width:16px;height:16px;margin:0}
 #imp-msg{font-size:14px;line-height:1.5;color:#ffd6d6}
 #imp-msg:empty{display:none}
 #imp-intro{list-style:none;margin:0;padding:0;display:grid;gap:10px}

@@ -401,18 +401,13 @@ html,body{
 .lb-auto input:checked{background:#34c759}
 .lb-auto input:checked::after{transform:translateX(18px)}
 .lb-auto input:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.lb-date{
-  font-size:13px;
-  color:rgba(255,255,255,0.78);
-  font-weight:500;
-}
 
 .lb-media-wrap{
   flex:1;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
   position:relative;
-  touch-action:none;
+  touch-action:pan-y pinch-zoom;   /* pinch/pan handled in JS; let the browser not swallow it */
 }
 .lb-slide{
   position:absolute;inset:0;
@@ -428,6 +423,8 @@ html,body{
   display:block;
 }
 .lb-slide.loaded img,.lb-slide.loaded video{transform:scale(1);opacity:1}
+.lb-wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  color:var(--muted);font-size:14px;pointer-events:none}
 
 /* ⋯ menu (header, right): informations, share, copy, download, folder, conversation */
 .lb-right{display:flex;align-items:center;gap:14px}
@@ -443,71 +440,71 @@ html,body{
 .lb-menu button:hover,.lb-menu button:focus-visible{background:rgba(255,255,255,.09);outline:0}
 .lb-menu svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
 
-/* Informations: light text at a FIXED place, bottom-left (above the video controls), so it
-   never covers the photo's subject and never moves while swiping */
+/* Informations: one light line at the bottom-left, above the video controls, so it
+   never covers the subject and never moves while swiping */
 .lb-meta{
   position:absolute;
-  left:14px;bottom:calc(max(16px,var(--safe-bottom)) + 6px);
-  z-index:10;max-width:calc(100% - 28px);
-  display:none;flex-direction:column;gap:3px;
+  left:14px;right:14px;bottom:calc(max(16px,var(--safe-bottom)) + 6px);
+  z-index:10;
+  display:none;align-items:center;gap:6px;
+  font-size:13px;color:rgba(255,255,255,0.92);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   text-shadow:0 1px 6px rgba(0,0,0,.95);pointer-events:none;
+  transition:opacity 220ms ease;
 }
-.lb-meta a{pointer-events:auto}
-#lightbox.has-video .lb-meta{bottom:calc(max(16px,var(--safe-bottom)) + 62px)}
-/* clean display (a tap on the media): nothing but the photo or video */
-#lightbox.clean .lb-header,#lightbox.clean .lb-nav{opacity:0!important;pointer-events:none!important}
+.lb-meta a{pointer-events:auto;color:inherit;text-decoration:underline;text-underline-offset:2px}
+.lb-who-btn{flex:none;pointer-events:auto;width:26px;height:26px;margin-left:2px;padding:0;border:0;border-radius:50%;
+  background:rgba(255,255,255,.15);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.lb-who-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#lightbox.has-video .lb-meta{bottom:calc(max(16px,var(--safe-bottom)) + 58px)}
+/* clean display (a tap on a photo) and video playback (controls auto-hidden): nothing but the media */
+#lightbox.clean .lb-header{opacity:0!important;pointer-events:none!important}
 #lightbox.clean .lb-meta{display:none!important}
+#lightbox.has-video.ctrl-hidden .lb-header,#lightbox.has-video.ctrl-hidden .lb-meta{opacity:0;pointer-events:none}
 .lb-slide img,.lb-slide video{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-/* touch: the side zones that catch a hold (lightbox.js lbHoldZones) */
-.lb-hold{position:absolute;top:56px;bottom:72px;width:30%;z-index:3;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-.lb-hold.l{left:0}.lb-hold.r{right:0}
 /* held at 2× */
 #lightbox.fast::after{content:"2×";position:absolute;top:calc(max(18px,var(--safe-top)) + 6px);left:50%;transform:translateX(-50%);
   z-index:20;padding:5px 12px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-size:13px;font-weight:700;pointer-events:none}
 #lightbox.open.info-on .lb-meta{display:flex}
-.lb-meta-row{
-  display:inline-flex;align-items:center;gap:7px;
-  font-size:13px;color:rgba(255,255,255,0.92);
-  white-space:nowrap;overflow:hidden;
-}
-#lightbox.open.info-on .lb-meta.empty{display:none}   /* no time, place or sender: no card at all */
-.lb-who-link{margin-left:4px;font-size:12px;opacity:.8}
-.lb-meta-row a{
-  color:rgba(255,255,255,0.92);
-  text-decoration:underline;
-  text-underline-offset:2px;
-  overflow:hidden;text-overflow:ellipsis;
+#lightbox.open.info-on .lb-meta.empty{display:none}   /* no date, place or sender: no line at all */
+
+/* nav arrows: desktop/mouse only. On touch (phone) they stay hidden — side taps navigate instead. */
+.lb-nav{display:none}
+@media (hover:hover) and (pointer:fine){
+  .lb-nav{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:11;
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:none;color:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity 220ms ease,background 150ms ease;
+    -webkit-tap-highlight-color:transparent;pointer-events:none;
+  }
+  #lightbox.open .lb-nav{opacity:1;pointer-events:auto}
+  #lightbox.clean .lb-nav{opacity:0!important;pointer-events:none!important}
+  .lb-nav:hover{background:rgba(0,0,0,0.7)}
+  .lb-nav-prev{left:10px}
+  .lb-nav-next{right:10px}
+  .lb-nav.edge{opacity:0.18!important}
 }
 
-/* give video room for its native controls */
-#lightbox.has-video .lb-slide video{
-  max-height:calc(100% - 120px);
+/* ── Custom media controls (replace the native video/audio controls) ── */
+.lb-ctrl{
+  position:absolute;left:0;right:0;bottom:0;z-index:12;
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px calc(max(14px,var(--safe-bottom)) + 10px);
+  background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);
+  transition:opacity 220ms ease;
 }
-
-/* ── Lightbox nav arrows ── */
-.lb-nav{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  z-index:11;
-  width:40px;height:40px;
-  border-radius:50%;
-  background:rgba(0,0,0,0.45);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border:none;color:#fff;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;
-  transition:opacity 220ms ease,background 150ms ease;
-  -webkit-tap-highlight-color:transparent;
-  pointer-events:none;
-}
-#lightbox.open .lb-nav{opacity:1;pointer-events:auto}
-.lb-nav:hover{background:rgba(0,0,0,0.7)}
-.lb-nav-prev{left:10px}
-.lb-nav-next{right:10px}
-.lb-nav.edge{opacity:0.18!important}
+#lightbox.ctrl-hidden .lb-ctrl{opacity:0;pointer-events:none}
+.lb-ctrl .lb-pp{flex:none;width:36px;height:36px;padding:0;border:0;border-radius:50%;
+  background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lb-ctrl .lb-pp svg{width:18px;height:18px}
+.lb-ctrl .lb-cur,.lb-ctrl .lb-dur{flex:none;font-size:12px;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.9);min-width:34px;text-align:center}
+.lb-ctrl .lb-seek{flex:1;min-width:0;appearance:none;-webkit-appearance:none;height:4px;border-radius:3px;
+  background:rgba(255,255,255,.3);cursor:pointer}
+.lb-ctrl .lb-seek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.lb-ctrl .lb-seek::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
 
 /* ── Selection bar ── */
 #sel-bar{
@@ -596,14 +593,18 @@ html,body{
 .cm-filters{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;margin-top:9px}
 .cm-filters[hidden]{display:none}
 .cm-filters{justify-content:space-between}
-.cm-sum{min-width:0;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-sum{flex:1 1 auto;min-width:0;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cm-sum small{font-size:12px;color:rgba(255,255,255,.45);margin-left:2px}
 .cm-sum em{font-style:normal;font-weight:500;color:rgba(255,255,255,.55);margin-left:6px}
-.ch-menu #cm-conv{flex:none;width:auto;margin:2px 6px 6px}
-#cm-conv{flex:0 0 136px;width:136px;margin-left:auto;text-overflow:ellipsis;height:32px;border:0;border-radius:999px;padding:0 12px;cursor:pointer;
-  background:rgba(255,255,255,.11);color:#fff;font:inherit;font-size:12.5px;font-weight:600;outline:0}
-#cm-conv option,#cm-conv optgroup{background:#1c1c1e;color:#fff}
+/* the conversation / member selects live in the popover: never wider than it (a long group name overflowed) */
+.ch-menu #cm-conv,.ch-menu #cm-person{flex:none;width:100%;max-width:100%;box-sizing:border-box;margin:2px 0 6px;
+  text-overflow:ellipsis;height:34px;border:0;border-radius:999px;padding:0 12px;cursor:pointer;
+  background:rgba(255,255,255,.11);color:#fff;font:inherit;font-size:13px;font-weight:600;outline:0}
+#cm-conv option,#cm-conv optgroup,#cm-person option{background:#1c1c1e;color:#fff}
 #lb-toast{position:absolute;left:50%;bottom:max(24px,var(--safe-bottom));transform:translate(-50%,10px);z-index:20;
   padding:9px 16px;border-radius:999px;background:rgba(28,28,30,.95);color:#fff;font-size:13.5px;font-weight:600;
   opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 #lb-toast.on{opacity:1;transform:translate(-50%,0)}
+/* drag to scroll with a mouse (core.js): no snapping or text selection while dragging */
+.drag-scrolling{scroll-snap-type:none!important;cursor:grabbing;user-select:none}
+.drag-scrolling *{cursor:grabbing!important}

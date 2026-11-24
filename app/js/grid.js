@@ -33,8 +33,46 @@ function buildFlat() {
   flatItems = filtGroups.flatMap(g => g.items);
 }
 
+// ── Grid zoom (pinch): Apple-Photos-style levels, from dezoomed (year) to zoomed in ──
+const GRID_LEVELS = [
+  { cols: 5, group: 'year',  label: 'year'  },   // 0: most dezoomed — grouped by year
+  { cols: 4, group: 'month', label: 'month' },   // 1: grouped by month
+  { cols: 3, group: 'day',   label: 'day'   },   // 2: default — grouped by day
+  { cols: 2, group: 'day',   label: 'day'   },   // 3: most zoomed in
+];
+let gridZoom = (() => { try { const z = +localStorage.getItem('memora.gridZoom'); return z >= 0 && z < GRID_LEVELS.length ? z : 2; } catch (e) { return 2; } })();
+
+// Merge the day-groups into month or year buckets for the current zoom (items keep their order).
+function groupByZoom(groups) {
+  const g = GRID_LEVELS[gridZoom].group;
+  if (g === 'day') return groups;
+  const cut = g === 'year' ? 4 : 7;              // "YYYY" or "YYYY-MM"
+  const out = [], idx = new Map();
+  for (const grp of groups) {
+    const k = grp.date.slice(0, cut);
+    let b = idx.get(k);
+    if (!b) { b = { date: grp.date, items: [] }; idx.set(k, b); out.push(b); }
+    b.items.push(...grp.items);
+  }
+  return out;
+}
+
+// Group header text at the current granularity.
+function fmtGroupLabel(date) {
+  const lvl = GRID_LEVELS[gridZoom].label;
+  if (lvl === 'year') return date.slice(0, 4);
+  if (lvl === 'month') {
+    const s = new Date(date + 'T12:00:00').toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  return fmtDate(date);
+}
+
+// Scroll the grid to the rendered group that contains a given ISO day (any granularity).
+function gridScrollToDay(iso) { scrollToDay(iso); }
+
 // ── Chat Media filters: type (photos, videos, voice notes, snaps) + conversation ──
-const cmFilter = { type: 'all', conv: '' };   // conv: '' | 'grp' (all groups) | 'dm' (one-to-one) | <conversation id>
+const cmFilter = { type: 'all', conv: '', person: '' };   // conv: '' | 'grp' (all groups) | 'dm' (one-to-one) | <conversation id> ; person: a sender (a selected group only)
 const CM_TYPES = [
   ['all',   'Tout',    () => true],
   ['image', 'Photos',  it => it.type === 'image'],
@@ -47,6 +85,7 @@ const _cmConvOk = it => !cmFilter.conv ? true
   : cmFilter.conv === 'dm'  ? !!it.cid && !it.grp
   : it.cid === cmFilter.conv;
 const _cmTypeOk = it => (CM_TYPES.find(t => t[0] === cmFilter.type) || CM_TYPES[0])[2](it);
+const _cmPersonOk = it => !cmFilter.person || it.by === cmFilter.person;
 
 // Chips with counts (for the selected conversation) and the conversation menu.
 function buildChatFilters() {
@@ -76,17 +115,31 @@ function buildChatFilters() {
       <optgroup label="Groupes">${list.filter(c => c.grp).map(opt).join('')}</optgroup>
       <optgroup label="Privé">${list.filter(c => !c.grp).map(opt).join('')}</optgroup>
     </select>` : '';
-  // one line: what is shown, and a « filter » icon whose menu holds the type and the conversation
+  // Member filter (a selected group only): the distinct senders in that conversation.
+  const selConv = list.find(c => c.id === cmFilter.conv);
+  let people = '';
+  if (selConv && selConv.grp) {
+    const members = [...new Set(inConv.map(it => it.by).filter(Boolean))].sort((a, b) => a.localeCompare(b, LOCALE));
+    if (members.length > 1) people = `<select id="cm-person" aria-label="Membre">
+        <option value=""${cmFilter.person ? '' : ' selected'}>Tous les membres</option>
+        ${members.map(m => `<option value="${esc(m)}"${cmFilter.person === m ? ' selected' : ''}>${esc(m)}</option>`).join('')}
+      </select>`;
+  }
+  if (!people) cmFilter.person = '';   // no member list here: forget any stale person
+
+  // one line: what is shown, and a « filter » icon whose menu holds the type, conversation and member
   const t = CM_TYPES.find(x => x[0] === cmFilter.type) || CM_TYPES[0];
-  const shown = inConv.reduce((a, it) => a + (t[2](it) ? 1 : 0), 0);
-  const conv = cmFilter.conv ? (list.find(c => c.id === cmFilter.conv)?.title
+  const shown = inConv.reduce((a, it) => a + ((t[2](it) && _cmPersonOk(it)) ? 1 : 0), 0);
+  const conv = cmFilter.conv ? (selConv?.title
     || { grp: 'Tous les groupes', dm: 'Chats privés' }[cmFilter.conv] || '') : '';
-  el.innerHTML = `<span class="cm-sum">${t[1]} <small>${shown.toLocaleString(LOCALE)}</small>${conv ? ` <em>${esc(conv)}</em>` : ''}</span>
+  const sub = cmFilter.person ? `${esc(cmFilter.person)}${conv ? ' · ' + esc(conv) : ''}` : (conv ? esc(conv) : '');
+  el.innerHTML = `<span class="cm-sum">${t[1]} <small>${shown.toLocaleString(LOCALE)}</small>${sub ? ` <em>${sub}</em>` : ''}</span>
     <div class="ch-pop">
-      <button class="ch-ico${cmFilter.type !== 'all' || cmFilter.conv ? ' dot' : ''}" data-pop="cm" aria-label="Filtrer les médias" aria-expanded="false">${CH_ICON_SORT}</button>
+      <button class="ch-ico${cmFilter.type !== 'all' || cmFilter.conv || cmFilter.person ? ' dot' : ''}" data-pop="cm" aria-label="Filtrer les médias" aria-expanded="false">${CH_ICON_SORT}</button>
       <div class="ch-menu" hidden>
         <div class="ch-mh">Afficher</div>${chips}
         ${menu ? `<div class="ch-mh">Conversation</div>${menu}` : ''}
+        ${people ? `<div class="ch-mh">Membre</div>${people}` : ''}
       </div>
     </div>`;
   el.hidden = false;
@@ -99,21 +152,22 @@ document.getElementById('cm-filters')?.addEventListener('click', e => {
   buildChatFilters(); applyFilters(); $scroll.scrollTop = 0;
 });
 document.getElementById('cm-filters')?.addEventListener('change', e => {
-  if (e.target.id !== 'cm-conv') return;
-  cmFilter.conv = e.target.value;
+  if (e.target.id === 'cm-conv') { cmFilter.conv = e.target.value; cmFilter.person = ''; }   // a new conversation: drop the member
+  else if (e.target.id === 'cm-person') cmFilter.person = e.target.value;
+  else return;
   buildChatFilters(); applyFilters(); $scroll.scrollTop = 0;
 });
 
 // ── Search (+ Chat Media filters; year/month navigation is the scrubber) ─────
 function applyFilters() {
   const q = $search.value.toLowerCase().trim();
-  const cm = currentSource === 'chat' && (cmFilter.type !== 'all' || cmFilter.conv);
+  const cm = currentSource === 'chat' && (cmFilter.type !== 'all' || cmFilter.conv || cmFilter.person);
   if (!q && !cm) filtGroups = allGroups;
   else {
     // a date ("2025-07") or, for chat media, a sender / group name
     const hitQ = it => !q || (it.by && it.by.toLowerCase().includes(q)) || (it.in && it.in.toLowerCase().includes(q))
                           || (it.conv && it.conv.toLowerCase().includes(q));
-    const hitF = it => !cm || (_cmConvOk(it) && _cmTypeOk(it));
+    const hitF = it => !cm || (_cmConvOk(it) && _cmTypeOk(it) && _cmPersonOk(it));
     filtGroups = allGroups.map(g => ({ date: g.date,
                                        items: g.items.filter(it => hitF(it) && (g.date.includes(q) || hitQ(it))) }))
                           .filter(g => g.items.length);
@@ -130,7 +184,9 @@ function render() {
   listSource = currentSource;   // the source now actually painted into #main-content
   if (!filtGroups.length) {
     $main.innerHTML = appImporting
-      ? `<div class="state-view"><div class="spinner"></div><span>Import en cours… tes souvenirs vont apparaître ici au fur et à mesure.</span></div>`
+      ? `<div class="state-view"><div class="spinner"></div><span>${currentSource === 'chat'
+          ? 'Import en cours… tes Chat Media arrivent ici une fois les souvenirs traités.'
+          : 'Import en cours… tes souvenirs vont apparaître ici au fur et à mesure.'}</span></div>`
       : `<div class="state-view"><span>${sourceTitles[currentSource] || 'Aucun élément'}</span></div>`;
     return;
   }
@@ -141,7 +197,9 @@ function render() {
   // lightbox and selection keep working whenever a cell is (re)mounted.
   let cursor = 0;
   _groupCells = [];
-  const groupsHTML = filtGroups.map((g, gi) => {
+  const cols = GRID_LEVELS[gridZoom].cols;
+  const renderGroups = groupByZoom(filtGroups);
+  const groupsHTML = renderGroups.map((g, gi) => {
     const cells = g.items.map(item => {
       const idx = cursor++;
       const vid = item.type === 'video';
@@ -181,8 +239,8 @@ function render() {
     _groupCells.push(cells);
     return `
       <div class="date-group" data-date="${g.date}">
-        <div class="date-label">${fmtDate(g.date)}</div>
-        <div class="media-grid" data-gi="${gi}" data-n="${g.items.length}"></div>
+        <div class="date-label">${fmtGroupLabel(g.date)}</div>
+        <div class="media-grid" data-gi="${gi}" data-n="${g.items.length}" style="grid-template-columns:repeat(${cols},1fr)"></div>
       </div>`;
   }).join('');
 
@@ -254,6 +312,36 @@ function virtualize() {
 
   $main.querySelectorAll('.date-group').forEach(dg => _vobs.observe(dg));
 }
+
+// ── Pinch to change columns / grouping (Apple-Photos-style zoom) ──────────────
+// ponytail: a year bucket can hold many cells; innerHTML fills it in one go when it
+// scrolls into view — fine for a gallery, revisit only if a huge year stutters.
+let _gpD0 = 0;
+const _gpDist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+function _topGroupDate() {
+  const top = $scroll.getBoundingClientRect().top + 4;
+  for (const dg of $main.querySelectorAll('.date-group'))
+    if (dg.getBoundingClientRect().bottom > top) return dg.dataset.date;
+  return null;
+}
+function setGridZoom(z) {
+  z = Math.max(0, Math.min(GRID_LEVELS.length - 1, z));
+  if (z === gridZoom) return;
+  gridZoom = z;
+  try { localStorage.setItem('memora.gridZoom', z); } catch (e) {}
+  const anchor = _topGroupDate();          // keep roughly the same spot after regrouping
+  render();
+  if (anchor) gridScrollToDay(anchor);
+}
+$main.addEventListener('touchstart', e => { if (e.touches.length === 2) _gpD0 = _gpDist(e.touches); }, { passive: true });
+$main.addEventListener('touchmove', e => {
+  if (e.touches.length !== 2 || !_gpD0 || currentView !== 'list') return;
+  e.preventDefault();
+  const r = _gpDist(e.touches) / _gpD0;
+  if (r > 1.35)      { setGridZoom(gridZoom + 1); _gpD0 = _gpDist(e.touches); }   // spread → zoom in (fewer columns)
+  else if (r < 0.74) { setGridZoom(gridZoom - 1); _gpD0 = _gpDist(e.touches); }   // pinch → dezoom (more columns)
+}, { passive: false });
+$main.addEventListener('touchend', e => { if (e.touches.length < 2) _gpD0 = 0; }, { passive: true });
 
 // ── Cell interactions (event delegation — bound ONCE on $main, not per cell) ──
 // Pointer events unify mouse + touch. A short press = tap (open/select); a

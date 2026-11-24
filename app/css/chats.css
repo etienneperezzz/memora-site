@@ -24,7 +24,7 @@
 .ch-ico[aria-expanded="true"]{background:#fff;color:#111}
 .ch-ico.dot::after{content:"";position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#FFFC00}
 .ch-pop{position:relative;flex:none}
-.ch-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:220px;padding:6px;border-radius:14px;
+.ch-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:220px;max-width:calc(100vw - 24px);padding:6px;border-radius:14px;
   background:rgba(28,28,30,.98);border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 40px rgba(0,0,0,.55);
   display:flex;flex-direction:column;text-align:left}
 .ch-menu[hidden]{display:none}

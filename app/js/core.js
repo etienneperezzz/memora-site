@@ -30,7 +30,6 @@ const $search  = document.getElementById('search-input');
 const $lb      = document.getElementById('lightbox');
 const $lbWrap  = document.getElementById('lb-wrap');
 const $lbSlide = document.getElementById('lb-slide');
-const $lbDate  = document.getElementById('lb-date');
 const $lbClose = document.getElementById('lb-close');
 const $lbDl    = document.getElementById('lb-dl');
 const $selBar  = document.getElementById('sel-bar');
@@ -78,8 +77,14 @@ let DEMO = (typeof window !== 'undefined' && window.MEMORA_DEMO === true) || /[?
 const DEMO_BASE = 'demo';
 async function getJSON(apiPath, demoName) {
   if (!DEMO) {
-    try { const r = await fetch(apiPath); if (r.ok) return await r.json(); DEMO = true; }
-    catch (e) { DEMO = true; }
+    // Inside the app (desktop or phone) a failed call is an error, retried on the next refresh: never
+    // the demo, which would send every later call to demo/*.json (absent: "HTTP 404" until a reload).
+    const inApp = !!(window.pywebview || window.MEMORA_NATIVE);
+    let r;
+    try { r = await fetch(apiPath); } catch (e) { if (inApp) throw e; DEMO = true; }
+    if (r && r.ok) return await r.json();
+    if (r && inApp) throw new Error('HTTP ' + r.status);
+    DEMO = true;
   }
   const r = await fetch(DEMO_BASE + '/' + demoName);
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -134,3 +139,38 @@ function fmtAge(d) {
   const y = b.getFullYear() - a.getFullYear() - (b.getMonth() * 32 + b.getDate() < a.getMonth() * 32 + a.getDate() ? 1 : 0);
   return y < 1 ? 'moins d’un an' : y === 1 ? '1 an' : `${y} ans`;
 }
+
+// ── Drag to scroll the horizontal rows with a mouse ──────────────────────────
+// On a PC the rows (souvenirs carousel, chat filters, Rétro calendar, stats tables) hide their
+// scrollbar and a wheel scrolls vertically: press and drag left / right. A drag past a few pixels
+// doesn't open the card under the pointer; a plain click still does. Touch keeps its own swipe.
+(function () {
+  const ROWS = '.souvenirs, .ch-kinds, .rt-cal, .ch-table-wrap';
+  let row = null, id = null, x0 = 0, left0 = 0, moved = false, eatClick = false;
+  document.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    const r = e.target.closest(ROWS);
+    if (!r || r.scrollWidth <= r.clientWidth + 1) return;
+    row = r; id = e.pointerId; x0 = e.clientX; left0 = r.scrollLeft; moved = false;
+  });
+  document.addEventListener('pointermove', e => {
+    if (!row || e.pointerId !== id) return;
+    const dx = e.clientX - x0;
+    if (!moved) {
+      if (Math.abs(dx) < 6) return;
+      moved = true; row.classList.add('drag-scrolling');
+      try { row.setPointerCapture(id); } catch (err) {}
+    }
+    row.scrollLeft = left0 - dx;
+  });
+  const end = e => {
+    if (!row || (e && e.pointerId !== id)) return;
+    row.classList.remove('drag-scrolling');
+    if (moved) { eatClick = true; setTimeout(() => { eatClick = false; }, 60); }
+    row = null; id = null;
+  };
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+  document.addEventListener('click', e => { if (eatClick) { e.preventDefault(); e.stopPropagation(); eatClick = false; } }, true);
+  document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest(ROWS)) e.preventDefault(); });
+})();

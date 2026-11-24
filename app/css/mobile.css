@@ -56,11 +56,8 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 /* compact segments (Souvenirs | Stats, Messages | Stats) */
 .ch-seg button { padding: 5px 11px; font-size: 12.5px; }
 .ch-head { gap: 8px; padding: 8px 10px; }
-/* viewer: the header above the photo or video and the time / place below it, never over the
-   video's own controls (full screen at the top, progress bar at the bottom) */
-#lightbox .lb-header { position: relative; flex-shrink: 0; padding: calc(var(--safe-top) + 4px) 12px 8px; background: #000; }
-#lightbox .lb-meta { position: static; flex-shrink: 0; padding: 8px 14px calc(var(--safe-bottom) + 10px); max-width: none; background: #000; }
-#lightbox.clean .lb-header { display: none; }
+/* viewer: header, info line and custom controls are overlays (the media fills the screen);
+   chrome auto-hides during video playback and on a clean-display tap */
 #lightbox.fast::after { top: calc(var(--safe-top) + 10px); }
 
 /* map: its counter under the basemap switch, without the long note */
