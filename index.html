@@ -102,7 +102,7 @@
 
   /* showcase: single preview that glides + scales on scroll */
   .showcase{position:relative;min-height:240vh}
-  .showcase-sticky{position:sticky;top:64px;height:calc(100vh - 64px);height:calc(100svh - 64px);display:grid;place-items:center;overflow:hidden}
+  .showcase-sticky{position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));height:calc(100svh - var(--nav-h));display:grid;place-items:center;overflow:hidden}
   .stage-wrap{position:relative;width:100%;max-width:1120px;margin:0 auto;display:grid;place-items:center;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
   .hero-copy{position:absolute;left:max(20px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);max-width:30rem;z-index:3}
   .hero-copy h1{font-size:clamp(34px,5.2vw,60px)} .hero-copy h1 .hl{color:var(--accent)}
@@ -277,10 +277,18 @@
   .freeline{margin-top:18px!important;font-size:14.5px}
   .freeline b{color:var(--fg)}
 
-  .alert{display:inline-flex;align-items:center;gap:9px;margin-bottom:16px;padding:7px 14px 7px 7px;border-radius:999px;
-    font-size:13.5px;font-weight:600;color:var(--fg);text-decoration:none;background:color-mix(in srgb,var(--warn) 12%,var(--surface));
-    border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line))}
-  .alert b{background:var(--warn);color:#fff;border-radius:999px;padding:3px 10px;font-size:12px}
+  /* January 2027 bar on top of the nav: scrolls sideways, × hides it for good (localStorage) */
+  :root{--nav-h:98px} html.bar-off{--nav-h:64px} html.bar-off .topbar{display:none}
+  .topbar{position:relative;height:34px;display:flex;align-items:center;overflow:hidden;background:#c2410c;color:#fff;font-size:13.5px;font-weight:600}
+  .topbar .track{display:flex;width:max-content;animation:tb-scroll 45s linear infinite}
+  .topbar:hover .track{animation-play-state:paused}
+  .topbar .grp{display:flex}
+  .topbar a{color:#fff;text-decoration:none;white-space:nowrap;padding:0 30px;display:inline-flex;align-items:center;gap:9px}
+  .topbar a b{background:rgba(0,0,0,.24);border-radius:999px;padding:2px 10px;font-size:12px}
+  .topbar .x{position:absolute;top:0;right:0;bottom:0;width:48px;border:0;cursor:pointer;color:#fff;font-size:22px;line-height:1;
+    background:linear-gradient(90deg,transparent,#c2410c 35%)}
+  @keyframes tb-scroll{to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.topbar .track{animation:none}}
   .src{margin-top:16px;font-size:13px;color:var(--faint)}.src a{color:var(--muted)}
   .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px auto 18px;max-width:820px;text-align:left}
   .plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
@@ -315,9 +323,11 @@
   .showcase.flat .sc-hint{display:none}
 </style>
 
+<script>try{if(localStorage.getItem('memora-bar-2027'))document.documentElement.classList.add('bar-off')}catch(e){}</script>
 </head>
 <body>
-<nav><div class="wrap nav-in">
+<nav><div class="topbar" id="topbar"><div class="track"><div class="grp"><a href="#why"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a></div><div class="grp" aria-hidden="true"><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a><a href="#why" tabindex="-1"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a></div></div><button class="x" aria-label="Fermer le bandeau" onclick="document.documentElement.classList.add('bar-off');try{localStorage.setItem('memora-bar-2027','1')}catch(e){}">×</button></div>
+<div class="wrap nav-in">
   <div class="brand"><img class="mark" src="/img/logo.png" alt="" width="36" height="36">Memorizzz</div>
   <div class="nav-links"><a href="#features">Fonctionnalités</a><a href="#engine">Sous le capot</a><a href="#why">Pourquoi maintenant</a><a href="#how">Comment ça marche</a><a href="#price">Prix</a><a href="/blog/">Blog</a></div>
   <div class="nav-right">
@@ -328,7 +338,6 @@
 
 <section id="showcase" class="showcase"><div class="showcase-sticky"><div class="stage-wrap">
   <div class="hero-copy" id="heroCopy">
-    <a class="alert" href="#why"><b>Janvier 2027</b> Snapchat archive les souvenirs au-delà de 5 Go</a>
     <h1>Tes souvenirs Snapchat,<br><span class="hl">à toi pour toujours.</span></h1>
     <p class="lede">Memorizzz remet de l'ordre dans ton export Snapchat : légendes recollées sur les photos, vraies dates, vidéos reconstituées. Puis il en fait une galerie, une carte, des statistiques et tes conversations, sur ton ordinateur.</p>
     <div class="cta-row">
