@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voir ses souvenirs Snapchat sur son téléphone, partout, en les gardant chez soi (avec Tailscale) | Memorizzz</title>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="fdfa4142-d813-4bf0-80f2-9886a44bc60c" data-domains="memorizzz.com" data-exclude-search="true"></script>
+<meta name="description" content="Garde ta bibliothèque de souvenirs sur ton ordinateur, un NAS ou un Raspberry Pi, et consulte-la depuis ton téléphone où que tu sois, sans cloud. Comment installer Tailscale pas à pas, et comment Memorizzz s&#x27;y connecte.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://memorizzz.com/blog/acceder-souvenirs-snapchat-a-distance-tailscale/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Memorizzz">
+<meta property="og:title" content="Voir ses souvenirs Snapchat sur son téléphone, partout, en les gardant chez soi (avec Tailscale) | Memorizzz">
+<meta property="og:description" content="Garde ta bibliothèque de souvenirs sur ton ordinateur, un NAS ou un Raspberry Pi, et consulte-la depuis ton téléphone où que tu sois, sans cloud. Comment installer Tailscale pas à pas, et comment Memorizzz s&#x27;y connecte.">
+<meta property="og:url" content="https://memorizzz.com/blog/acceder-souvenirs-snapchat-a-distance-tailscale/">
+<meta property="og:image" content="https://memorizzz.com/og.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BlogPosting", "headline": "Voir ses souvenirs Snapchat sur son téléphone, partout, en les gardant chez soi (avec Tailscale)", "description": "Garde ta bibliothèque de souvenirs sur ton ordinateur, un NAS ou un Raspberry Pi, et consulte-la depuis ton téléphone où que tu sois, sans cloud. Comment installer Tailscale pas à pas, et comment Memorizzz s'y connecte.", "datePublished": "2026-11-25", "dateModified": "2026-11-25", "inLanguage": "fr", "mainEntityOfPage": "https://memorizzz.com/blog/acceder-souvenirs-snapchat-a-distance-tailscale/", "image": "https://memorizzz.com/og.png", "author": {"@type": "Organization", "name": "Memorizzz", "url": "https://memorizzz.com/"}, "publisher": {"@type": "Organization", "name": "Memorizzz", "url": "https://memorizzz.com/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://memorizzz.com/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://memorizzz.com/blog/"}, {"@type": "ListItem", "position": 3, "name": "Voir ses souvenirs Snapchat sur son téléphone, partout, en les gardant chez soi (avec Tailscale)", "item": "https://memorizzz.com/blog/acceder-souvenirs-snapchat-a-distance-tailscale/"}]}]}</script>
+<style>
+:root{--bg:#faf8fc;--surface:#fff;--line:rgba(26,14,54,.11);--fg:#141019;--muted:#4f495f;--faint:#8a8498;--accent:#6a34f0;
+  --sans:'Hanken Grotesk',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--disp:'Bricolage Grotesque','Hanken Grotesk',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0a10;--surface:#14131d;--line:rgba(255,255,255,.09);
+  --fg:#f3f1f8;--muted:#b4b1c2;--faint:#726d84;--accent:#b398ff;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.7 var(--sans)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px}
+.brand{font-family:var(--disp);font-weight:700;font-size:20px;color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;gap:9px}
+header.top nav{display:flex;gap:18px;font-size:15px}
+header.top nav a{color:var(--muted);text-decoration:none}header.top nav a:hover{color:var(--fg)}
+.crumbs{font-size:14px;color:var(--faint);margin:26px 0 0}.crumbs a{color:var(--faint)}
+h1{font-family:var(--disp);font-size:clamp(28px,5vw,42px);line-height:1.15;margin:12px 0 10px}
+.meta{font-size:14px;color:var(--faint)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+article h2{font-family:var(--disp);font-size:25px;line-height:1.25;margin:40px 0 8px}
+article h3{font-size:18px;margin:24px 0 4px}
+article p,article li{color:var(--muted)}article b,article strong{color:var(--fg)}
+article a{color:var(--accent)}
+.lede{font-size:19px;color:var(--fg)!important}
+code{font-size:.88em;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.tip{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:14px 18px;margin:18px 0;color:var(--muted)}
+table.check{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px}
+table.check th,table.check td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top;color:var(--muted)}
+table.check th{color:var(--fg);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+table.check small{color:var(--faint)}
+@media(max-width:600px){table.check{font-size:14px}table.check th:nth-child(3),table.check td:nth-child(3){display:none}}
+.sources{font-size:14px}
+.cta{margin:46px 0 10px;padding:26px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface))}
+.cta h2{margin:0 0 6px;font-size:23px}.cta p{margin:0 0 16px;color:var(--muted)}
+.btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#190a33}}
+.posts{list-style:none;padding:0;margin:26px 0;display:flex;flex-direction:column;gap:14px}
+.posts a{display:block;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;text-decoration:none}
+.posts a:hover{border-color:var(--accent)}
+.posts h2{font-family:var(--disp);font-size:22px;line-height:1.25;color:var(--fg);margin:6px 0}
+.posts p{color:var(--muted);margin:0 0 8px;font-size:16px}
+footer{border-top:1px solid var(--line);margin-top:60px;padding:26px 0 40px;font-size:13.5px;color:var(--faint)}
+footer a{color:var(--faint)}footer .links{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/"><img src="/img/logo.png" alt="" width="28" height="28">Memorizzz</a>
+  <nav><a href="/#features">Fonctionnalités</a><a href="/blog/">Blog</a><a href="/#price">Télécharger</a></nav></div></header>
+<main class="wrap">
+<p class="crumbs"><a href="/">Accueil</a> › <a href="/blog/">Blog</a></p><article><span class="tag">Guide</span><h1>Voir ses souvenirs Snapchat sur son téléphone, partout, en les gardant chez soi (avec Tailscale)</h1><p class="meta">Publié le 25 novembre 2026 · 7 min de lecture</p><p class="lede">Des années de Souvenirs Snapchat ne tiennent pas dans un téléphone, et tu n'as pas forcément envie de
+les confier à un cloud. Il existe une troisième voie : laisser tes souvenirs chez toi, sur ton ordinateur, un NAS ou
+un Raspberry Pi, et y accéder depuis ton téléphone, où que tu sois. L'outil qui rend ça simple s'appelle Tailscale.</p>
+
+<h2>À quoi ça sert ?</h2>
+<ul>
+  <li><b>Tout ton historique dans la poche, sans remplir ton téléphone.</b> Les photos et vidéos restent sur le disque
+  de la maison. Le téléphone n'affiche que ce que tu regardes.</li>
+  <li><b>Aucun cloud, aucun abonnement.</b> Tes souvenirs ne sont copiés sur aucun serveur en ligne. Ils passent
+  directement de ta machine à ton téléphone, chiffrés.</li>
+  <li><b>Retrouver un souvenir au bon moment.</b> En soirée, en vacances, chez ta famille : tu ouvres l'app, tu
+  retrouves la vidéo de cet été-là et tu l'envoies à un ami.</li>
+  <li><b>Une seule bibliothèque pour tous tes appareils.</b> Ton iPhone, ta tablette, le téléphone de ton conjoint :
+  tout le monde lit la même bibliothèque, mise à jour à un seul endroit.</li>
+</ul>
+<p>Si tu préfères tout avoir sur toi, sans connexion, une
+<a href="/blog/cle-usb-c-souvenirs-snapchat-telephone/">clé USB-C branchée sur le téléphone</a> reste la solution la
+plus simple. L'accès à distance est fait pour ceux qui ont déjà une machine allumée à la maison.</p>
+
+<h2>Tailscale, comment ça marche ?</h2>
+<p>Tailscale est un VPN d'un genre particulier : au lieu de faire passer ta connexion par un serveur lointain, il crée
+un <b>petit réseau privé entre tes propres appareils</b>. Ton téléphone et ta machine de la maison se voient comme
+s'ils étaient sur le même Wi-Fi, même quand tu es sur la 4G à l'autre bout du pays.</p>
+<ul>
+  <li>Chaque appareil reçoit une adresse qui commence par <code>100.</code>, valable partout.</li>
+  <li>La connexion est chiffrée de bout en bout (elle repose sur WireGuard) et va directement d'un appareil à l'autre
+  quand c'est possible.</li>
+  <li>Rien n'est ouvert sur Internet : pas de redirection de port sur ta box, pas d'adresse publique à protéger.</li>
+  <li>C'est gratuit pour un usage personnel, et tu te connectes avec un compte que tu as déjà (Google, Apple,
+  Microsoft, GitHub).</li>
+</ul>
+
+<h2>Étape 1 : installer Tailscale sur la machine qui garde tes souvenirs</h2>
+<p>C'est la machine où est branché le disque de ta bibliothèque. Elle doit rester allumée quand tu veux y accéder.</p>
+<h3>Sur un Mac ou un PC Windows</h3>
+<p>Télécharge Tailscale sur <a href="https://tailscale.com/download" rel="noopener">tailscale.com/download</a>,
+installe-le et connecte-toi. L'icône Tailscale apparaît dans la barre des menus (Mac) ou près de l'horloge (Windows).</p>
+<h3>Sur un Raspberry Pi (ou n'importe quel Linux)</h3>
+<p>Dans un terminal :</p>
+<p><code>curl -fsSL https://tailscale.com/install.sh | sh</code><br><code>sudo tailscale up</code></p>
+<p>La deuxième commande affiche un lien : ouvre-le sur ton téléphone ou ton ordinateur pour te connecter.</p>
+<h3>Sur un NAS</h3>
+<p>Synology, QNAP et Unraid proposent Tailscale dans leur centre de paquets ou d'applications. Installe-le, ouvre-le
+et connecte-toi avec le même compte.</p>
+<div class="tip"><b>Pense à désactiver l'expiration de la clé.</b> Par défaut, Tailscale redemande une connexion à
+chaque appareil au bout de quelques mois. Pour ta machine de la maison, ouvre la console d'administration sur
+tailscale.com, va dans <b>Machines</b>, puis, dans le menu de la machine, choisis <b>Disable key expiry</b>. Sinon
+elle risque de disparaître de ton réseau le jour où tu es loin de chez toi.</div>
+
+<h2>Étape 2 : installer Tailscale sur ton téléphone</h2>
+<ol>
+  <li>Installe l'app Tailscale depuis l'App Store ou le Google Play Store.</li>
+  <li>Connecte-toi avec <b>le même compte</b> qu'à l'étape 1.</li>
+  <li>Accepte l'ajout de la configuration VPN, puis active Tailscale.</li>
+</ol>
+<p>Dans l'app, la liste de tes machines s'affiche avec leur adresse en <code>100.x.y.z</code>. Note celle de ta
+machine de la maison : c'est elle que tu donneras à Memorizzz.</p>
+<p>Tu peux laisser Tailscale toujours activé, il consomme très peu, ou ne l'allumer qu'au moment de regarder tes
+souvenirs. Chez toi, sur ton Wi-Fi, tu n'en as même pas besoin.</p>
+
+<h2>Étape 3 : partager ta bibliothèque avec Memorizzz</h2>
+<p>Memorizzz s'occupe du reste. La machine de la maison fait tourner le <b>serveur Memorizzz</b> : il lit ta
+bibliothèque, prépare des vignettes légères et envoie les photos et vidéos à ton téléphone à la demande.</p>
+<h3>Sur un Mac ou un PC</h3>
+<p>Ouvre Memorizzz, va dans <b>Réglages</b>, puis <b>Accès depuis le téléphone</b>, et touche <b>Activer</b>. L'app
+affiche l'adresse de la machine et un <b>code</b> de 16 caractères. Tant que le partage est activé, l'ordinateur ne se
+met pas en veille. Si macOS te demande d'accepter les connexions entrantes pour Memorizzz, accepte.</p>
+<h3>Sur un Raspberry Pi</h3>
+<p>Branche le disque de ta bibliothèque, puis lance cette commande en indiquant le dossier qui contient
+<code>Memories_processed</code> :</p>
+<p><code>curl -fsSL https://github.com/etienneperezzz/memora-site/releases/latest/download/install.sh | sudo sh -s -- /media/pi/MonDisque/Memorizzz</code></p>
+<p>Le script installe le serveur, le fait démarrer avec le Pi, puis affiche l'adresse et le code. Il faut Raspberry
+Pi OS en 64 bits (Pi 3 ou plus récent).</p>
+<h3>Sur un NAS</h3>
+<p>Si ton NAS gère Docker (Container Manager sur Synology, Container Station sur QNAP, Unraid), utilise l'image
+<code>ghcr.io/etienneperezzz/memorizzz-server</code>, avec le dossier de ta bibliothèque monté sur
+<code>/library</code> et le port 8765. Le code s'affiche dans le journal du conteneur.</p>
+
+<h2>Étape 4 : te connecter depuis l'app Memorizzz du téléphone</h2>
+<ol>
+  <li>Active Tailscale sur ton téléphone.</li>
+  <li>Ouvre Memorizzz et choisis <b>Sur un serveur</b>. Si tu avais déjà une bibliothèque sur le téléphone, passe par
+  <b>Réglages</b>, puis <b>Serveur</b> et <b>Se connecter</b>.</li>
+  <li>Entre l'adresse de ta machine (par exemple <code>100.101.102.103</code>) et le code, puis touche
+  <b>Se connecter</b>.</li>
+</ol>
+<p>Ta galerie s'ouvre comme sur l'ordinateur : tes souvenirs triés par jour, la carte, tes statistiques Rétro et tes
+conversations. Les vidéos se lisent en streaming, sans attendre de les télécharger. Pour partager un souvenir ou
+l'enregistrer dans tes photos, l'app récupère le fichier d'origine, avec sa vraie date et son lieu.</p>
+<p>Chez toi, tu peux aussi utiliser l'adresse de la machine sur ton réseau local (celle en <code>192.168.</code>
+qu'affiche Memorizzz) : ça marche sans Tailscale, tant que tu es sur ton Wi-Fi.</p>
+
+<h2>Et la sécurité ?</h2>
+<ul>
+  <li><b>Le serveur Memorizzz est fermé par défaut.</b> Il ne s'ouvre au réseau que si tu l'actives.</li>
+  <li><b>Il ne répond qu'aux adresses privées</b> : ton réseau local et ton réseau Tailscale. Une connexion venue
+  d'Internet est refusée.</li>
+  <li><b>Il faut le code</b> pour voir quoi que ce soit, et les essais au hasard sont bloqués. Si tu as un doute,
+  touche <b>Nouveau code</b> dans les réglages : les téléphones déjà connectés devront saisir le nouveau.</li>
+  <li><b>Tes souvenirs ne passent ni par nos serveurs, ni par ceux de Tailscale</b> : la connexion est chiffrée entre
+  tes appareils.</li>
+</ul>
+<div class="tip"><b>N'ouvre jamais le port 8765 sur ta box</b> (redirection de port) pour accéder à tes souvenirs
+depuis l'extérieur. C'est exactement ce que Tailscale te permet d'éviter.</div>
+
+<h2>Si ça ne marche pas</h2>
+<ul>
+  <li><b>« Serveur injoignable »</b> : vérifie que Tailscale est activé sur le téléphone, que la machine de la maison
+  est allumée et connectée à Tailscale, et que tu as bien tapé son adresse en <code>100.</code>.</li>
+  <li><b>« Code incorrect »</b> : recopie le code affiché par Memorizzz sur la machine. Les tirets et les majuscules
+  ne comptent pas.</li>
+  <li><b>« L'accès depuis le téléphone est-il activé ? »</b> : sur Mac ou PC, retourne dans Réglages et active
+  l'accès.</li>
+  <li><b>Les vidéos sont lentes hors de chez toi</b> : elles dépendent du débit d'envoi de ta box, souvent bien plus
+  faible que son débit de réception. Les photos et les vignettes, elles, restent rapides.</li>
+</ul>
+
+<h2>Garde quand même une sauvegarde</h2>
+<p>Le disque de la maison est maintenant l'endroit où vivent tes souvenirs. Comme tout disque, il peut lâcher : garde
+une deuxième copie de ta bibliothèque et de tes .zip d'origine ailleurs. Tout est expliqué dans notre article pour
+<a href="/blog/sauvegarder-souvenirs-snapchat-disque-externe/">sauvegarder ses souvenirs Snapchat sur un disque
+externe</a>.</p></article><section class="cta"><h2>Garde tes souvenirs Snapchat, pour de bon</h2><p>Memorizzz transforme ton export en galerie triée par jour, en carte et en conversations, sur ton ordinateur. Gratuit pour commencer, puis dès 5 € une seule fois.</p><a class="btn" href="/#price">Télécharger Memorizzz</a></section>
+</main>
+<footer><div class="wrap">
+  <div class="links"><a href="/">Accueil</a><a href="/blog/">Blog</a><a href="/mentions-legales/">Mentions légales</a><a href="/mentions-legales/#confidentialite">Confidentialité</a><a href="/mentions-legales/#cgv">CGV</a></div>
+  Memorizzz est un outil indépendant, non affilié à Snap Inc. et non approuvé par Snap Inc. Snapchat est une marque de Snap Inc.
+</div></footer>
+</body>
+</html>
