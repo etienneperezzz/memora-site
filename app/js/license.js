@@ -55,7 +55,10 @@
 
   async function refresh(){
     try {
-      const d = await (await fetch('/api/license')).json();
+      const r = await fetch('/api/license');
+      if (!r.ok) return;   // server unreachable (phone): an error is no license, keep what is shown
+      const d = await r.json();
+      window.memoraLic = d; if (typeof paintCapNote === 'function') paintCapNote();
       const starter = d.plan === 'starter';
       // already on Essentiel: only the upgrade is offered
       document.getElementById('lic-starter').hidden = starter;

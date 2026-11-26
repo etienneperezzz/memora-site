@@ -86,6 +86,8 @@ function _scrubHover(clientY) {
   return d;
 }
 function _scrubRest() {
+  // a hover still queued would show the bubble again after the release, and it then stayed on screen
+  if (_scHoverRaf) { cancelAnimationFrame(_scHoverRaf); _scHoverRaf = 0; }
   _scrubbing = false; $scrub.classList.remove('dragging');
   $scrubBubble.classList.remove('show');
   _scrubSyncScroll();                      // revert the accent dot to the current position
@@ -100,7 +102,8 @@ $scrub.addEventListener('pointerdown', e => {
 });
 $scrub.addEventListener('pointermove', e => {
   const y = e.clientY;
-  if (_scHoverRaf) return;
+  if (_scHoverRaf || $scrub.hidden) return;
+  if (!_scrubbing && e.pointerType !== 'mouse') return;   // a finger only previews while it drags
   _scHoverRaf = requestAnimationFrame(() => { _scHoverRaf = 0; _scrubHover(y); });
 });
 $scrub.addEventListener('pointerup', e => {

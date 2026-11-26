@@ -24,8 +24,8 @@
     <label id="imp-delzips" hidden><input type="checkbox" checked> Supprimer les .zip une fois importés</label>
     <div id="imp-msg"></div>
     <div id="imp-prog" hidden></div>
-    <p id="imp-bg" hidden>Tu peux fermer cette fenêtre et continuer à parcourir tes photos : l'import continue en arrière-plan.</p>
-    <button class="link" id="imp-logtoggle" hidden>Afficher le détail</button>
+    <p id="imp-bg" hidden>Tu peux fermer cette fenêtre et continuer à parcourir tes photos : l'import continue en arrière-plan.
+      <small>Il utilise beaucoup ton ordinateur, qui peut ralentir en attendant.</small></p>
     <div id="imp-log" hidden></div>
     <div class="row">
       <button id="imp-copy" hidden>Copier le journal</button>
@@ -44,11 +44,11 @@
   const q = s => modal.querySelector(s);
   const log = q('#imp-log'), msgEl = q('#imp-msg'), progEl = q('#imp-prog'), bgNote = q('#imp-bg');
   const intro = q('#imp-intro'), pickBtn = q('#imp-pick');
-  const closeBtn = q('#imp-close'), recheck = q('#imp-recheck'), logToggle = q('#imp-logtoggle'), copyBtn = q('#imp-copy');
+  const closeBtn = q('#imp-close'), recheck = q('#imp-recheck'), copyBtn = q('#imp-copy');
   const delZips = q('#imp-delzips');
   let deleteZips = false;   // what the box said when the zips were picked
   let busy = false, pending = [], prog = null, last = { pct: 0, label: '', status: 'running' }, hideTimer = null;
-  let _liveTimer = null;
+  let _liveTimer = null, lastWarn = '';
 
   // the progress bar is shared with the wizard (progress.js), loaded only in the app
   let progLoaded = null;
@@ -92,12 +92,6 @@
     if (window.memoraLicenseRefresh) window.memoraLicenseRefresh();
   }
 
-  logToggle.addEventListener('click', () => {
-    const show = log.hidden;
-    log.hidden = !show; copyBtn.hidden = !show;
-    logToggle.textContent = show ? 'Masquer le détail' : 'Afficher le détail';
-  });
-
   // Live refresh during import: memories are written newest-first, so new items land at
   // the top. Only refresh while the user is watching the top (no spinner, no scroll jump)
   // and only re-render when the count actually grew.
@@ -116,8 +110,10 @@
   function showRunning(){
     if (prog) { progEl.hidden = false; prog.start(); }
     else { log.hidden = false; }   // progress.js unavailable: show the raw log instead
-    logToggle.hidden = !prog; bgNote.hidden = false;
-    busy = true; appImporting = true; paintPill({ pct: 0, label: 'Préparation…', status: 'running' });
+    copyBtn.hidden = true; bgNote.hidden = false;
+    busy = true; appImporting = true; lastWarn = ''; msgEl.textContent = ''; recheck.hidden = true;
+    pill.querySelector('small').textContent = 'Cliquer pour voir le détail';
+    paintPill({ pct: 0, label: 'Préparation…', status: 'running' });
     if (!_liveTimer) _liveTimer = setInterval(liveRefresh, 4000);   // ponytail: 4 s poll
     // If the gallery is already showing the empty "Aucun souvenir trouvé" state (opened
     // mid-import), swap it for the "import en cours" message right away.
@@ -129,12 +125,12 @@
     const api = window.pywebview.api;
     recheck.disabled = true; recheck.textContent = 'Vérification…';
     const r = await api.check_space(pending);
-    recheck.disabled = false; recheck.textContent = 'Revérifier et importer';
+    recheck.disabled = false; recheck.textContent = r.ok ? 'Reprendre l’import' : 'Revérifier et importer';
     intro.hidden = true; pickBtn.hidden = true; delZips.hidden = true;
     openModal();
     if (!r.ok){
       msgEl.textContent = '⚠️ ' + r.msg;
-      progEl.hidden = true; logToggle.hidden = true; bgNote.hidden = true;
+      progEl.hidden = true; bgNote.hidden = true;
       recheck.hidden = false;
       return;
     }
@@ -152,8 +148,14 @@
       busy = false; appImporting = false; bgNote.hidden = true;
       clearInterval(_liveTimer); _liveTimer = null;
       if (prog) prog.finish(ok); else paintPill({ pct: ok ? 100 : last.pct, label: ok ? 'Import terminé ✓' : 'Import interrompu', status: ok ? 'ok' : 'fail' });
-      log.textContent += ok ? '\n✅ Import terminé.' : '\n⚠️ Import interrompu, voir le message ci-dessus.';
+      log.textContent += ok ? '\n✅ Import terminé.' : '\n⚠️ Import interrompu.';
       log.scrollTop = log.scrollHeight;
+      if (!ok) {   // what happened and how to go on, above the log; the import resumes where it stopped
+        msgEl.textContent = '⚠️ ' + (lastWarn || 'L’import s’est interrompu. Clique sur « Reprendre l’import » : il repart là où il s’est arrêté.');
+        recheck.textContent = 'Reprendre l’import'; recheck.hidden = !pending.length;
+        copyBtn.hidden = false;
+        pill.querySelector('small').textContent = 'Cliquer pour reprendre l’import';
+      }
       if (!modalOpen()) {   // tell how it ended; success fades out, a failure stays until clicked
         pill.hidden = false;
         if (ok) hideTimer = setTimeout(() => { pill.hidden = true; }, 8000);
@@ -162,6 +164,7 @@
       return;
     }
     if (msg.startsWith('@@STEP chat') && !allGroups.length) reloadLibrary();   // memories ready
+    if (/^⚠️/.test(msg)) lastWarn = msg.replace(/^⚠️\s*/, '');
     if (prog ? prog.line(msg) : msg.startsWith('@@')) return;   // progress marker
     log.textContent += (log.textContent ? '\n' : '') + msg;
     log.scrollTop = log.scrollHeight;
@@ -173,7 +176,18 @@
     const api = window.pywebview && window.pywebview.api;
     if (!api || !api.import_state || busy) return;
     const s = await api.import_state();
+    if (!s.running && s.unfinished && s.unfinished.length) {   // cut last time: offer to go on
+      pending = s.unfinished; deleteZips = false;
+      q('h3').textContent = 'Import interrompu';
+      for (const el of [intro, pickBtn, delZips, progEl, bgNote, log, copyBtn]) el.hidden = true;
+      msgEl.textContent = 'Ton dernier import ne s’est pas terminé (disque débranché, app fermée ou Mac en veille). '
+        + 'Clique sur « Reprendre l’import » : il repart là où il s’est arrêté, rien n’est perdu.';
+      recheck.textContent = 'Reprendre l’import'; recheck.hidden = false;
+      openModal();
+      return;
+    }
     if (!s.running) return;
+    pending = s.zips || [];
     await ensureProg();
     q('h3').textContent = 'Import de ton export Snapchat';
     msgEl.textContent = ''; log.textContent = '';
@@ -189,8 +203,7 @@
     if (busy) { openModal(); return; }
     q('h3').textContent = 'Importer de nouvelles données';
     msgEl.textContent = '';
-    for (const el of [progEl, bgNote, logToggle, log, copyBtn, recheck]) el.hidden = true;
-    logToggle.textContent = 'Afficher le détail';
+    for (const el of [progEl, bgNote, log, copyBtn, recheck]) el.hidden = true;
     intro.hidden = false; pickBtn.hidden = false; delZips.hidden = false;
     openModal();
     pickBtn.focus();

@@ -12,9 +12,9 @@ let _tripsData = null;               // cached /api/trips result for the current
 const SEASONS = [['hiver',[12,1,2]], ['printemps',[3,4,5]], ['été',[6,7,8]], ['automne',[9,10,11]]];
 
 async function buildSouvenirs() {
-  // Souvenirs are a memories concept (chat has no trips/places).
-  if (currentSource !== 'memories' || !allGroups.length) { $souv.hidden = true; return; }
-  if (_tripsData === null) {
+  // Souvenirs and Chat Media (no trips there: busiest month of each conversation instead).
+  if (!['memories', 'chat'].includes(currentSource) || !allGroups.length) { $souv.hidden = true; return; }
+  if (currentSource === 'memories' && _tripsData === null) {
     try { _tripsData = await getJSON('/api/trips?source=memories', 'trips_memories.json'); }
     catch (e) { _tripsData = []; }
     if (currentSource !== 'memories' || currentView !== 'list') return;   // left Souvenirs while the trips were computed
@@ -41,8 +41,31 @@ function _souvThisDay() {
   return Object.keys(best).sort().reverse().map(y => {
     const g = best[y].group, n = curY - (+y);
     return { kind: t('Ce jour-là'), title: n === 1 ? t('Il y a 1 an') : tf('Il y a {n} ans', { n }),
-             sub: fmtFR(g.date), cover: g.items[0].path, items: g.items };
+             sub: fmtFR(g.date), cover: _souvCover(g.items), items: g.items };
   });
+}
+
+// A card's picture: its first photo or video (a voice note has no thumbnail: the card is then purple).
+const _souvCover = items => (items.find(it => it.type !== 'audio') || {}).path || '';
+
+function _souvConvPeaks() {
+  // Chat Media: each conversation's busiest month → "Les potes, juillet 2023 · 84 médias".
+  const per = new Map();   // cid -> {title, months: {YYYY-MM: items}}
+  for (const g of allGroups) for (const it of g.items) {
+    if (!it.cid) continue;
+    const c = per.get(it.cid) || per.set(it.cid, { title: it.conv || it.by || '', months: {} }).get(it.cid);
+    (c.months[g.date.slice(0, 7)] ||= []).push(it);
+  }
+  const peaks = [];
+  for (const c of per.values()) {
+    const [ym, items] = Object.entries(c.months).sort((a, b) => b[1].length - a[1].length)[0];
+    if (items.length >= 8) peaks.push({ c, ym, items });
+  }
+  return peaks.sort((a, b) => b.items.length - a.items.length).slice(0, 6).map(({ c, ym, items }) => ({
+    kind: t('Période intense'), title: c.title,
+    sub: `${new Date(ym + '-15T12:00:00').toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' })} · ${tf('{n} médias', { n: items.length })}`,
+    cover: _souvCover(items), items,
+  }));
 }
 
 function _souvSeasons() {
@@ -68,17 +91,18 @@ function _souvRandom() {
   if (!g) return null;
   const it = g.items[Math.floor(Math.random() * g.items.length)];
   return { kind: t('Au hasard'), title: t('Souvenir surprise'), sub: fmtFR(g.date),
-           cover: it.path, items: g.items, reroll: true };
+           cover: it.type === 'audio' ? _souvCover(g.items) : it.path, items: g.items, reroll: true };
 }
 
 function renderSouvenirs() {
-  const trips = (_tripsData || []).slice(0, 6).map(trip => ({
+  const chat = currentSource === 'chat';
+  const trips = chat ? [] : (_tripsData || []).slice(0, 6).map(trip => ({
     kind: t('Voyage'), title: tf('Voyage à {c}', { c: trip.city }),
     sub: `${new Date(trip.end + 'T12:00:00').toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' })} · ${trip.count} snaps`,
     cover: trip.cover, items: trip.items,
   }));
   const rnd = _souvRandom();
-  let cards = [..._souvThisDay(), ...trips, ..._souvSeasons()];
+  let cards = chat ? [..._souvThisDay(), ..._souvConvPeaks()] : [..._souvThisDay(), ...trips, ..._souvSeasons()];
   cards = cards.slice(0, 9);
   if (rnd) cards.push(rnd);              // always end on a surprise
 
@@ -87,7 +111,7 @@ function renderSouvenirs() {
   $souv.hidden = false;
   $souv.innerHTML = cards.map((c, i) => `
     <div class="souv-card" data-i="${i}">
-      <img src="${thumbUrl(c.cover)}" loading="lazy" decoding="async" alt="">
+      ${c.cover ? `<img src="${thumbUrl(c.cover)}" loading="lazy" decoding="async" alt="">` : ''}
       <div class="souv-grad"></div>
       <div class="souv-kind">${esc(c.kind)}</div>
       ${c.reroll ? '<button class="souv-reroll" data-reroll aria-label="Un autre">↻</button>' : ''}

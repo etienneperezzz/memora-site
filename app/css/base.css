@@ -154,6 +154,7 @@ html,body{
   box-shadow:0 6px 18px rgba(0,0,0,0.35);
 }
 .souv-card:active{transform:scale(0.96)}
+.souv-card:not(:has(img)){background:linear-gradient(135deg,#5b57d6,#8a56d6)}   /* voice notes only: no picture */
 .souv-card img{
   position:absolute;inset:0;
   width:100%;height:100%;
@@ -245,6 +246,7 @@ html,body{
   z-index:360;
 }
 .sc-bubble.show{opacity:1}
+.scrubber[hidden] + .sc-bubble{display:none}   /* its scrubber hidden (viewer, map…): never left on screen */
 
 /* ── Scrollable content ── */
 .content{
@@ -331,9 +333,12 @@ html,body{
   display:flex;flex-direction:column;align-items:center;gap:22px;
   padding:26px;
 }
-.audio-player .audio-icon{
-  width:84px;height:84px;color:#fff;opacity:0.92;
-}
+/* the viewer's voice note: the grid preview, big (purple card, bars lit as it plays) */
+.audio-player{width:min(78vw,420px,62vh);aspect-ratio:1;border-radius:28px;padding:0 9%;justify-content:center;
+  background:linear-gradient(135deg,#5b57d6,#8a56d6);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-vn{width:100%;height:34%;display:flex;align-items:center;gap:4px}
+.lb-vn i{flex:1;min-width:3px;height:calc(var(--h,.4) * 100%);border-radius:4px;background:rgba(255,255,255,.4);transition:height 80ms linear}
+.lb-vn i.on{background:#fff}
 .check-circle{
   position:absolute;
   top:7px;right:7px;
@@ -353,7 +358,7 @@ html,body{
 #lightbox{
   position:fixed;inset:0;
   z-index:999;
-  background:#000;
+  background:transparent;   /* the black is .lb-bg: a drag down fades it to show the grid behind */
   display:none;
   flex-direction:column;
   user-select:none;
@@ -407,13 +412,17 @@ html,body{
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
   position:relative;
-  touch-action:pan-y pinch-zoom;   /* pinch/pan handled in JS; let the browser not swallow it */
+  touch-action:none;   /* every gesture (swipe, pinch, drag down) is handled in JS (lightbox.js) */
 }
+.lb-track{position:absolute;inset:0;will-change:transform}
 .lb-slide{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
   will-change:transform;
 }
+/* dragging the media down: the header, the info line, the arrows and the controls fade with the finger */
+#lightbox.dragging .lb-header,#lightbox.dragging .lb-meta,#lightbox.dragging .lb-nav,#lightbox.dragging .lb-ctrl{
+  opacity:var(--lb-chrome,1)!important;transition:none!important}
 .lb-slide img,.lb-slide video{
   max-width:100%;max-height:100%;
   object-fit:contain;
@@ -460,7 +469,10 @@ html,body{
 /* clean display (a tap on a photo) and video playback (controls auto-hidden): nothing but the media */
 #lightbox.clean .lb-header{opacity:0!important;pointer-events:none!important}
 #lightbox.clean .lb-meta{display:none!important}
-#lightbox.has-video.ctrl-hidden .lb-header,#lightbox.has-video.ctrl-hidden .lb-meta{opacity:0;pointer-events:none}
+/* a playing video hides its bar and caption, never the close button and the ⋯ menu (always a way out, a share) */
+#lightbox.has-video.ctrl-hidden .lb-auto,#lightbox.has-video.ctrl-hidden .lb-meta{opacity:0;pointer-events:none}
+#lightbox.has-video .lb-close{transition:opacity .3s}
+#lightbox.has-video.ctrl-hidden .lb-close{opacity:.4}
 .lb-slide img,.lb-slide video{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 /* held at 2× */
 #lightbox.fast::after{content:"2×";position:absolute;top:calc(max(18px,var(--safe-top)) + 6px);left:50%;transform:translateX(-50%);
@@ -505,6 +517,13 @@ html,body{
   background:rgba(255,255,255,.3);cursor:pointer}
 .lb-ctrl .lb-seek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
 .lb-ctrl .lb-seek::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
+/* « Envoyer à » strip under the media: phone only (mobile.css turns it on) */
+.lb-foot{display:none}
+.lb-send{display:flex;align-items:center;gap:8px;height:42px;padding:0 18px 0 20px;border:0;border-radius:999px;
+  background:#0eadff;color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lb-send svg{width:17px;height:17px}
+.lb-send:active{transform:scale(.96)}
+.lb-send.busy{opacity:.6;pointer-events:none}
 
 /* ── Selection bar ── */
 #sel-bar{
@@ -608,3 +627,28 @@ html,body{
 /* drag to scroll with a mouse (core.js): no snapping or text selection while dragging */
 .drag-scrolling{scroll-snap-type:none!important;cursor:grabbing;user-select:none}
 .drag-scrolling *{cursor:grabbing!important}
+
+/* Essentiel / free: « 1 000 souvenirs sur 5 238 » above the grid (grid.js paintCapNote) */
+.cap-bar{display:flex;align-items:center;gap:16px;max-width:560px;margin:14px auto 6px;padding:12px 12px 12px 16px;
+  border-radius:14px;background:rgba(255,252,0,.06);border:1px solid rgba(255,252,0,.2)}
+.cap-bar .t{flex:1;min-width:0;font-size:12.5px;line-height:1.4;color:rgba(255,255,255,.6)}
+.cap-bar .t b{display:block;font-size:14px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.cap-bar .m{height:4px;margin-top:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.cap-bar .m i{display:block;height:100%;border-radius:99px;background:#FFFC00}
+.cap-bar button{flex:none;font:inherit;font-size:13px;font-weight:700;line-height:1;border:0;border-radius:999px;
+  padding:10px 16px;cursor:pointer;background:#FFFC00;color:#1a1a00;white-space:nowrap}
+.cap-bar button:hover{filter:brightness(.92)}
+.cap-bar .x{background:none;color:rgba(255,255,255,.45);font-size:20px;font-weight:400;padding:4px 6px;margin-left:-6px}
+.cap-bar .x:hover{color:#fff;filter:none}
+.cap-bar.closed .t{font-size:13px;color:rgba(255,255,255,.75);text-align:center}
+.cap-bar.closed .t b{display:inline;font-size:inherit}
+
+/* Back to today (grid.js): a pill under the top bar once far down Souvenirs / Chat Media */
+#to-top{position:fixed;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:6px;
+  padding:8px 15px 8px 12px;border:0;border-radius:999px;background:rgba(38,38,42,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:inherit;font-size:13px;font-weight:600;
+  box-shadow:0 6px 18px rgba(0,0,0,.45);cursor:pointer;-webkit-tap-highlight-color:transparent;animation:toTop .2s ease-out}
+#to-top[hidden]{display:none}
+#to-top svg{width:15px;height:15px}
+#to-top:active{transform:translateX(-50%) scale(.95)}
+@keyframes toTop{from{opacity:0;transform:translate(-50%,-8px)}}

@@ -33,43 +33,6 @@ function buildFlat() {
   flatItems = filtGroups.flatMap(g => g.items);
 }
 
-// ── Grid zoom (pinch): Apple-Photos-style levels, from dezoomed (year) to zoomed in ──
-const GRID_LEVELS = [
-  { cols: 5, group: 'year',  label: 'year'  },   // 0: most dezoomed — grouped by year
-  { cols: 4, group: 'month', label: 'month' },   // 1: grouped by month
-  { cols: 3, group: 'day',   label: 'day'   },   // 2: default — grouped by day
-  { cols: 2, group: 'day',   label: 'day'   },   // 3: most zoomed in
-];
-let gridZoom = (() => { try { const z = +localStorage.getItem('memora.gridZoom'); return z >= 0 && z < GRID_LEVELS.length ? z : 2; } catch (e) { return 2; } })();
-
-// Merge the day-groups into month or year buckets for the current zoom (items keep their order).
-function groupByZoom(groups) {
-  const g = GRID_LEVELS[gridZoom].group;
-  if (g === 'day') return groups;
-  const cut = g === 'year' ? 4 : 7;              // "YYYY" or "YYYY-MM"
-  const out = [], idx = new Map();
-  for (const grp of groups) {
-    const k = grp.date.slice(0, cut);
-    let b = idx.get(k);
-    if (!b) { b = { date: grp.date, items: [] }; idx.set(k, b); out.push(b); }
-    b.items.push(...grp.items);
-  }
-  return out;
-}
-
-// Group header text at the current granularity.
-function fmtGroupLabel(date) {
-  const lvl = GRID_LEVELS[gridZoom].label;
-  if (lvl === 'year') return date.slice(0, 4);
-  if (lvl === 'month') {
-    const s = new Date(date + 'T12:00:00').toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' });
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-  return fmtDate(date);
-}
-
-// Scroll the grid to the rendered group that contains a given ISO day (any granularity).
-function gridScrollToDay(iso) { scrollToDay(iso); }
 
 // ── Chat Media filters: type (photos, videos, voice notes, snaps) + conversation ──
 const cmFilter = { type: 'all', conv: '', person: '' };   // conv: '' | 'grp' (all groups) | 'dm' (one-to-one) | <conversation id> ; person: a sender (a selected group only)
@@ -197,9 +160,7 @@ function render() {
   // lightbox and selection keep working whenever a cell is (re)mounted.
   let cursor = 0;
   _groupCells = [];
-  const cols = GRID_LEVELS[gridZoom].cols;
-  const renderGroups = groupByZoom(filtGroups);
-  const groupsHTML = renderGroups.map((g, gi) => {
+  const groupsHTML = filtGroups.map((g, gi) => {
     const cells = g.items.map(item => {
       const idx = cursor++;
       const vid = item.type === 'video';
@@ -239,14 +200,44 @@ function render() {
     _groupCells.push(cells);
     return `
       <div class="date-group" data-date="${g.date}">
-        <div class="date-label">${fmtGroupLabel(g.date)}</div>
-        <div class="media-grid" data-gi="${gi}" data-n="${g.items.length}" style="grid-template-columns:repeat(${cols},1fr)"></div>
+        <div class="date-label">${fmtDate(g.date)}</div>
+        <div class="media-grid" data-gi="${gi}" data-n="${g.items.length}"></div>
       </div>`;
   }).join('');
 
-  $main.innerHTML = groupsHTML;
+  $main.innerHTML = '<div id="cap-note"></div>' + groupsHTML;
+  paintCapNote();
   virtualize();
 }
+
+// Essentiel / free: how many of this tab's items the plan shows, out of how many (license.js keeps
+// window.memoraLic up to date and repaints this when it changes).
+function paintCapNote() {
+  const box = document.getElementById('cap-note'), d = window.memoraLic;
+  if (!box) return;
+  const k = listSource, c = (d && d.counts && d.counts[k]) || 0;
+  const tot = c + ((d && d.waiting && d.waiting[k]) || 0), shown = d ? Math.min(c, d.limit || c) : 0;
+  if (!d || d.pro || !tot || shown >= tot || capBarOff()) { box.innerHTML = ''; return; }
+  const what = k === 'chat' ? 'Chat Media' : 'souvenirs', n = x => x.toLocaleString(LOCALE);
+  box.innerHTML = `<div class="cap-bar"><div class="t"><b>${n(shown)} ${what} sur ${n(tot)}</b>
+      <span>Ta version affiche les plus récents.</span><div class="m"><i style="width:${Math.max(2, shown / tot * 100)}%"></i></div></div>
+    <button>${d.plan === 'starter' ? 'Passer à l’illimité' : 'Tout débloquer'}</button>${CAP_X}</div>`;
+  box.querySelector('button').onclick = () => document.getElementById('lic-unlock').click();
+}
+
+// The bar can be closed for good (Souvenirs, Chat Media and Chats alike); the unlock stays in Réglages.
+const CAP_X = '<button class="x" aria-label="Fermer">×</button>';
+const capBarOff = () => { try { return localStorage.getItem('memora.capBarOff') === '1'; } catch (e) { return false; } };
+document.addEventListener('click', e => {
+  const x = e.target.closest('.cap-bar .x');
+  if (!x) return;
+  try { localStorage.setItem('memora.capBarOff', '1'); } catch (err) {}
+  const bar = x.closest('.cap-bar'), d = window.memoraLic;
+  bar.classList.add('closed');
+  bar.innerHTML = `<div class="t">Tu pourras ${d && d.plan === 'starter' ? 'passer à l’illimité' : 'tout débloquer'}
+    à tout moment dans les <b>Réglages</b>.</div>`;
+  setTimeout(() => bar.remove(), 5000);
+});
 
 // ── Virtualization (windowing by day) ────────────────────────────────────────
 // Keep only grids near the viewport populated. Empty grids get a reserved
@@ -313,36 +304,6 @@ function virtualize() {
   $main.querySelectorAll('.date-group').forEach(dg => _vobs.observe(dg));
 }
 
-// ── Pinch to change columns / grouping (Apple-Photos-style zoom) ──────────────
-// ponytail: a year bucket can hold many cells; innerHTML fills it in one go when it
-// scrolls into view — fine for a gallery, revisit only if a huge year stutters.
-let _gpD0 = 0;
-const _gpDist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-function _topGroupDate() {
-  const top = $scroll.getBoundingClientRect().top + 4;
-  for (const dg of $main.querySelectorAll('.date-group'))
-    if (dg.getBoundingClientRect().bottom > top) return dg.dataset.date;
-  return null;
-}
-function setGridZoom(z) {
-  z = Math.max(0, Math.min(GRID_LEVELS.length - 1, z));
-  if (z === gridZoom) return;
-  gridZoom = z;
-  try { localStorage.setItem('memora.gridZoom', z); } catch (e) {}
-  const anchor = _topGroupDate();          // keep roughly the same spot after regrouping
-  render();
-  if (anchor) gridScrollToDay(anchor);
-}
-$main.addEventListener('touchstart', e => { if (e.touches.length === 2) _gpD0 = _gpDist(e.touches); }, { passive: true });
-$main.addEventListener('touchmove', e => {
-  if (e.touches.length !== 2 || !_gpD0 || currentView !== 'list') return;
-  e.preventDefault();
-  const r = _gpDist(e.touches) / _gpD0;
-  if (r > 1.35)      { setGridZoom(gridZoom + 1); _gpD0 = _gpDist(e.touches); }   // spread → zoom in (fewer columns)
-  else if (r < 0.74) { setGridZoom(gridZoom - 1); _gpD0 = _gpDist(e.touches); }   // pinch → dezoom (more columns)
-}, { passive: false });
-$main.addEventListener('touchend', e => { if (e.touches.length < 2) _gpD0 = 0; }, { passive: true });
-
 // ── Cell interactions (event delegation — bound ONCE on $main, not per cell) ──
 // Pointer events unify mouse + touch. A short press = tap (open/select); a
 // 480ms hold = enter selection. Movement > 10px = scroll, not a tap.
@@ -388,7 +349,7 @@ function tap(cell, e) {
   const idx = +cell.dataset.idx;
   if (selecting) toggleSel(cell);
   else if (cell.classList.contains('audio-cell')) voiceToggle(cell.querySelector('.vn').dataset.vn);   // play in place
-  else openLb(idx);
+  else { buildFlat(); openLb(idx, true); }   // restore flatItems to the grid (souvenirs/map/random may have replaced it) + sync the grid on close
 }
 
 // ── Selection ────────────────────────────────────────────────────────────────
@@ -471,3 +432,23 @@ if (!DEMO && $selDemo) fetch('/api/license').then(r => r.json()).then(d => {
     }
   });
 }).catch(() => {});
+
+// ── Back to today: a pill at the top once far down a list (Souvenirs, Chat Media) ──
+const $toTop = document.createElement('button');
+$toTop.id = 'to-top';
+$toTop.hidden = true;
+$toTop.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>${t("Aujourd'hui")}`;
+document.body.appendChild($toTop);
+function syncToTop() {
+  const on = currentView === 'list' && $scroll.scrollTop > $scroll.clientHeight * 2;
+  if (on === !$toTop.hidden) return;
+  $toTop.hidden = !on;
+  if (on) $toTop.style.top = ($scroll.getBoundingClientRect().top + 10) + 'px';
+}
+$scroll.addEventListener('scroll', syncToTop, { passive: true });
+document.querySelector('.tabs')?.addEventListener('click', () => setTimeout(syncToTop));
+$toTop.addEventListener('click', () => {
+  const h = $scroll.clientHeight;
+  if ($scroll.scrollTop > h * 3) $scroll.scrollTop = h * 3;   // ponytail: only the last screens are animated (a long smooth scroll mounts every day on the way)
+  $scroll.scrollTo({ top: 0, behavior: 'smooth' });
+});

@@ -172,8 +172,9 @@ function renderChatList() {
         ? '<button class="ch-info" id="ch-info" aria-label="À propos de ces chiffres" aria-expanded="false">i</button>' : ''}</div>
       <div class="ch-sub">${_chNum(t.conversations)} conversations · ${_chNum(t.snapsSent + t.snapsReceived)} snaps
         (${_chNum(t.snapsSent)} envoyés) · ${_chNum(t.calls)} appels${t.callSeconds ? ` (${_chDur(t.callSeconds)})` : ''}</div>
-      ${t.shownRows < t.allRows ? `<div class="ch-cap">Ta version affiche les <b>${_chNum(t.shownRows)}</b> messages et snaps les plus récents,
-        sur ${_chNum(t.allRows)}. <button id="ch-unlock">Tout débloquer</button></div>` : ''}
+      ${t.shownRows < t.allRows && !capBarOff() ? `<div class="cap-bar"><div class="t"><b>${_chNum(t.shownRows)} messages et snaps sur ${_chNum(t.allRows)}</b>
+        <span>Ta version affiche les plus récents.</span><div class="m"><i style="width:${Math.max(2, t.shownRows / t.allRows * 100)}%"></i></div></div>
+        <button id="ch-unlock">${window.memoraLic && window.memoraLic.plan === 'starter' ? 'Passer à l’illimité' : 'Tout débloquer'}</button>${CAP_X}</div>` : ''}
       ${t.snapsSent + t.snapsReceived ? `<div class="ch-sub ch-subnote" id="ch-subnote" hidden>Snapchat ne conserve qu’une partie de l’historique des snaps, surtout pour les années anciennes : les nombres de snaps sont inférieurs à la réalité.</div>` : ''}
     </div>
     <div class="ch-tools">

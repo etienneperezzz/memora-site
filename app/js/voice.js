@@ -98,18 +98,106 @@ async function _vnDecode(url) {
     const buf = await (await fetch(url)).arrayBuffer();
     const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const audio = await new AC(1, 1, 44100).decodeAudioData(buf);
-    const d = audio.getChannelData(0), step = Math.floor(d.length / VN_BARS) || 1;
-    const peaks = [];
-    for (let i = 0; i < VN_BARS; i++) {
-      let s = 0;
-      for (let j = i * step, e = Math.min(d.length, j + step); j < e; j += 4) s += d[j] * d[j];
-      peaks.push(Math.sqrt(s / (step / 4)));
-    }
-    const max = Math.max(...peaks) || 1;
-    _vnWave.set(url, peaks.map(p => 0.16 + 0.84 * (p / max)));
+    _vnWave.set(url, _vnPeaksOf(audio.getChannelData(0), VN_BARS));
     _vnDur.set(url, audio.duration);
   } catch (e) { /* keep the placeholder */ }
 }
+// n bars of a decoded voice note: RMS of each slice, scaled to [0.16..1]
+function _vnPeaksOf(d, n) {
+  const step = Math.floor(d.length / n) || 1, peaks = [];
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let j = i * step, e = Math.min(d.length, j + step); j < e; j += 4) s += d[j] * d[j];
+    peaks.push(Math.sqrt(s / (step / 4)));
+  }
+  const max = Math.max(...peaks) || 1;
+  return peaks.map(p => 0.16 + 0.84 * (p / max));
+}
+
+// ── A voice note as a video (« Envoyer à » in the viewer): the purple card of the preview, its bars bouncing
+// on the real level and lit as it plays, the sender and the date above. The phone app renders it natively in
+// a few seconds (VoiceVideo.swift, same drawing); here, the fallback for browsers: recorded in real time
+// (canvas + the decoded audio → MediaRecorder: MP4 on Safari, WebM elsewhere), so it takes the note's length.
+async function voiceVideo(url, lines, onPct) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!window.MediaRecorder || !AC || !HTMLCanvasElement.prototype.captureStream) throw new Error('unsupported');
+  const ctx = new AC();
+  ctx.resume();                              // still inside the tap: iOS lets the context run
+  try {
+    const audio = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
+    // a context the browser keeps suspended never advances: give up (the caller shares the voice note itself)
+    if (ctx.state !== 'running') await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1000))]);
+    if (ctx.state !== 'running') throw new Error('audio blocked');
+    const dur = audio.duration, { peaks, levels, fps } = _vnBarsOf(audio), N = peaks.length;
+    const W = 720, H = 1280, c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const bg = g.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#5b57d6'); bg.addColorStop(1, '#8a56d6');
+    const font = '-apple-system, "Segoe UI", Roboto, sans-serif';
+    const draw = t => {
+      const p = Math.min(1, t / dur), lv = levels[Math.min(levels.length - 1, t * fps | 0)] || 0;
+      g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      g.fillStyle = '#fff'; g.textAlign = 'center';
+      g.font = `700 46px ${font}`; g.fillText(lines[0] || 'Vocal', W / 2, 400, W - 80);
+      g.fillStyle = 'rgba(255,255,255,.75)'; g.font = `500 30px ${font}`; g.fillText(lines[1] || '', W / 2, 452, W - 80);
+      const bw = 10, gap = (560 - N * bw) / (N - 1), x0 = (W - 560) / 2, cy = 680;
+      for (let i = 0; i < N; i++) {
+        const wave = 0.5 + 0.5 * Math.sin(t * 7 + i * 0.9);
+        const h = Math.max(12, 300 * Math.min(1, peaks[i] * (0.45 + 0.9 * lv * wave)));
+        g.fillStyle = i < p * N ? '#fff' : 'rgba(255,255,255,.4)';
+        g.beginPath(); g.roundRect(x0 + i * (bw + gap), cy - h / 2, bw, h, 5); g.fill();
+      }
+      g.fillStyle = 'rgba(255,255,255,.85)'; g.font = `600 30px ${font}`;
+      g.fillText(`${_vnFmt(Math.max(t, 0.01)) || '0:00'} / ${_vnFmt(dur)}`, W / 2, 900);
+      g.fillStyle = 'rgba(255,255,255,.55)'; g.font = `600 26px ${font}`; g.fillText('Memorizzz', W / 2, H - 90);
+    };
+    const dest = ctx.createMediaStreamDestination();
+    const src = ctx.createBufferSource();
+    src.buffer = audio; src.connect(dest);
+    const stream = new MediaStream([...c.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    const mime = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm']
+      .find(m => MediaRecorder.isTypeSupported(m));
+    const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 2e6 });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(res => { rec.onstop = res; });
+    draw(0);
+    rec.start(500);
+    const t0 = ctx.currentTime + 0.05;
+    src.start(t0);
+    await new Promise(res => {
+      (function frame() {
+        const t = Math.max(0, ctx.currentTime - t0);
+        draw(t);
+        onPct && onPct(Math.min(99, Math.round(t / dur * 100)));
+        if (t < dur + 0.25) requestAnimationFrame(frame); else res();
+      })();
+    });
+    rec.stop();
+    await stopped;
+    stream.getTracks().forEach(tr => tr.stop());
+    return new Blob(chunks, { type: (rec.mimeType || mime || 'video/mp4').split(';')[0] });
+  } finally { ctx.close(); }
+}
+// The video's bars (36 peaks) and the loudness of each frame (0…1, `fps` per second), from a decoded note.
+function _vnBarsOf(audio, fps = 30) {
+  const d = audio.getChannelData(0), step = audio.sampleRate / fps;
+  const levels = [];
+  for (let i = 0; i * step < d.length; i++) levels.push(_vnRms(d, i * step | 0, step | 0));
+  const max = Math.max(...levels) || 1;
+  return { peaks: _vnPeaksOf(d, 36), levels: levels.map(l => +(l / max).toFixed(3)), fps };
+}
+// The same, decoding the note here (the phone's native video, VoiceVideo.swift, draws from it).
+async function voiceBars(url) {
+  const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  return _vnBarsOf(await new AC(1, 1, 44100).decodeAudioData(await (await fetch(url)).arrayBuffer()));
+}
+const _vnRms = (d, i, n) => {
+  let s = 0, k = 0;
+  for (let j = Math.max(0, i), e = Math.min(d.length, i + n); j < e; j += 8) { s += d[j] * d[j]; k++; }
+  return k ? Math.sqrt(s / k) : 0;
+};
 
 function _vnFrame() {
   _vnRaf = 0;

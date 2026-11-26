@@ -15,7 +15,7 @@ input, textarea, select { font-size: 16px !important; -webkit-user-select: text;
 /* the dock floats over the content: the list runs on underneath (seen through the blur), and its inner
    bottom margin lets the last row scroll up above the dock (and the plan bar when shown) */
 :root { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 12px); }
-body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66px); }
+body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 52px); }
 #app { height: 100%; max-width: none; border: 0; }
 #content { padding-bottom: var(--under-dock); }
 #chats-view { padding-bottom: 0; }
@@ -38,8 +38,18 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 .tab-indicator { display: none; }
 #lic-bar { left: 12px; right: 12px; bottom: calc(var(--dock-h) + var(--dock-gap) + 8px); border-radius: 16px; border: 1px solid rgba(255,255,255,.1);
   background: rgba(24,24,30,.74); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  padding: 6px 6px 6px 14px; flex-wrap: nowrap; justify-content: space-between; font-size: 12.5px; min-height: 0; }
-#lic-bar button { min-height: 36px; padding: 6px 14px; flex-shrink: 0; }
+  padding: 4px 4px 4px 12px; gap: 6px; flex-wrap: nowrap; justify-content: space-between; font-size: 12px; min-height: 0; border-radius: 14px; }
+/* plan banners: one slim line on the phone (the desktop's two-line versions took a quarter of the screen) */
+#lic-msg { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(255,255,255,.8); }
+#lic-bar button { min-height: 30px; padding: 4px 12px; font-size: 12.5px; border-radius: 10px; flex-shrink: 0; }
+#lic-bar .lic-hide { padding: 0 6px; font-size: 18px; }
+.cap-bar { margin: 6px 12px 4px; padding: 6px 4px 6px 12px; gap: 6px; border-radius: 12px; }
+.cap-bar .t { font-size: 11px; }
+.cap-bar .t b { display: inline; font-size: 12px; }
+.cap-bar .t span { display: none; }
+.cap-bar .m { height: 3px; margin-top: 5px; }
+.cap-bar button { padding: 7px 11px; font-size: 12px; }
+.cap-bar .x { margin-left: -4px; padding: 2px 6px; font-size: 18px; }
 /* 4 previews per row, smaller souvenir cards */
 .media-grid { grid-template-columns: repeat(4, 1fr); }
 .souvenirs { gap: 8px; padding: 2px 12px 10px; }
@@ -59,6 +69,17 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 /* viewer: header, info line and custom controls are overlays (the media fills the screen);
    chrome auto-hides during video playback and on a clean-display tap */
 #lightbox.fast::after { top: calc(var(--safe-top) + 10px); }
+/* « Envoyer à » under the media: the media area ends above it, so the button never covers a photo or a video */
+#lightbox { --lb-foot: calc(64px + var(--safe-bottom)); }
+#lightbox .lb-media-wrap { margin-bottom: var(--lb-foot); }
+#lightbox .lb-foot { display: flex; position: absolute; left: 0; right: 0; bottom: 0; z-index: 12; height: var(--lb-foot);
+  padding: 0 14px var(--safe-bottom); align-items: center; justify-content: flex-end; transition: opacity 220ms ease; }
+#lightbox .lb-ctrl { padding-bottom: 10px; }   /* in the slide, which already ends above the strip */
+#lightbox .lb-meta { bottom: calc(var(--lb-foot) + 8px); }
+#lightbox.has-video .lb-meta { bottom: calc(var(--lb-foot) + 62px); }
+#lightbox.dragging .lb-foot { opacity: var(--lb-chrome, 1) !important; transition: none !important; }
+#lightbox.clean .lb-foot { opacity: 0; pointer-events: none; }
+#lb-toast { bottom: calc(var(--lb-foot) + 12px); }
 
 /* map: its counter under the basemap switch, without the long note */
 #map-hud { top: 50px; left: 56px; }
@@ -87,6 +108,9 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 #mz-onboard .mz-small { font-size: 13px; margin: 16px 0 0; }
 #mz-onboard .mz-err { color: #ffb3b3; }
 #mz-onboard .mz-err:empty { display: none; }
+#mz-onboard .mz-input { display: block; width: 100%; min-height: 48px; margin: 0 0 12px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.15); background: #0d0d12; color: #fff; font-size: 16px; box-sizing: border-box; }
+#mz-onboard .mz-input:focus { outline: none; border-color: #b388ff; }
 #mz-onboard .mz-btn { display: block; width: 100%; margin: 10px 0; padding: 14px; border-radius: 14px; font-size: 16px; text-decoration: none;
   font-weight: 600; border: 1px solid rgba(255,255,255,.15); background: transparent; color: #fff; }
 #mz-onboard .mz-btn.primary { background: #b388ff; color: #1a0033; border: 0; }
@@ -112,6 +136,21 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 #mz-onboard .mz-dots button { width: 8px; height: 8px; min-height: 0; padding: 0; border: 0; border-radius: 99px; background: rgba(255,255,255,.18); }
 #mz-onboard .mz-dots button.on { width: 22px; background: #b388ff; }
 @media (prefers-reduced-motion: reduce) { #mz-onboard section { animation: none; } }
+#mz-onboard .mz-get, #mz-onboard .mz-do { text-align: left; color: #d6d3e0; font-size: 15px; line-height: 1.5; margin: 0 0 18px; padding-left: 22px; }
+#mz-onboard .mz-get li::marker { content: "✓  "; color: #4ade80; }
+#mz-onboard .mz-get b, #mz-onboard .mz-do b, #mz-onboard p b { color: #fff; }
+#mz-onboard .mz-ok { color: #4ade80; } #mz-onboard .mz-ok:empty { display: none; }
+#mz-onboard .mz-mail { height: min(26vh, 220px); margin: 0 0 16px; }
+#mz-onboard .mz-mail img { object-fit: cover; object-position: top; }
+/* the export's zips (importer.ts ZIP_TIPS), in the onboarding and the import panel */
+.mz-zips { text-align: left; margin: 0 0 8px; }
+.mz-zips p { font-size: 14.5px; line-height: 1.5; color: #a3a0b2; margin: 0 0 10px; }
+.mz-zips span { display: block; width: fit-content; margin: 0 0 6px; padding: 7px 12px; border-radius: 10px; font-size: 14px;
+  color: #fff; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+.mz-zips span::before { content: "📦 "; }
+.mz-zips .mz-alert { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; color: #ffd9b8; background: rgba(251,146,60,.12);
+  border: 1px solid rgba(251,146,60,.3); font-size: 13.5px; }
+.mz-zips .mz-alert b { color: #fff; }
 
 /* import panel (src/importer.ts) */
 #mz-import { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,.6); display: flex; align-items: flex-end;
@@ -158,3 +197,32 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 66p
 #lic-modal .mz-btn.primary { background: #b398ff; color: #190a33; border: 0; }
 #lic-modal .mz-link { background: none; border: 0; color: #b398ff; }
 #lic-modal .mz-small { font-size: 13px; color: #a3a0b2; }
+
+/* Réglages (settings.js): a full-screen sheet like the phone's own settings, grouped rows in cards,
+   big touch targets; the desktop window (panels.css) was a shrunken dialog with small buttons. */
+#set-modal { padding: 0; align-items: stretch; background: #000; }
+#set-modal .box { max-width: none; max-height: none; height: 100%; border: 0; border-radius: 0; background: #000;
+  padding: calc(var(--safe-top) + 6px) 16px calc(var(--safe-bottom) + 28px); -webkit-overflow-scrolling: touch;
+  animation: mz-sheet .28s cubic-bezier(.2,.8,.2,1); }
+@keyframes mz-sheet { from { transform: translateY(40px); opacity: 0; } }
+#set-modal h2 { position: sticky; top: calc(-6px - var(--safe-top)); z-index: 1; margin: 0 -16px; padding: 14px 16px 12px;
+  background: rgba(0,0,0,.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); font-size: 28px; font-weight: 800; }
+#set-modal .x { position: fixed; top: calc(var(--safe-top) + 14px); right: 14px; z-index: 2; width: auto; height: 36px;
+  padding: 0 16px; border-radius: 18px; background: #FFFC00; color: #1a1a00; font-size: 0; font-weight: 700; }
+#set-modal .x::after { content: "OK"; font-size: 15px; }
+#set-modal h3 { margin: 26px 4px 8px; font-size: 13px; }
+#set-modal .row { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 12px; align-items: center;
+  padding: 13px 16px; margin: 0; background: #1c1c22; border-top: 1px solid rgba(255,255,255,.07); }
+#set-modal h3 + .row, #set-modal h3 + div > .row:first-child { border-top: 0; border-radius: 14px 14px 0 0; }
+#set-modal .row:has(+ h3), #set-modal .row:has(+ div), #set-modal .row:has(+ p), #set-modal .row:last-child { border-radius: 0 0 14px 14px; }
+#set-modal h3 + .row:has(+ h3), #set-modal h3 + .row:has(+ div), #set-modal h3 + .row:has(+ p), #set-modal h3 + .row:last-child { border-radius: 14px; }
+#set-modal .k { grid-column: 1; width: auto; font-size: 13px; color: rgba(255,255,255,.5); }
+#set-modal .v { grid-column: 1; font-size: 16px; line-height: 1.35; margin-top: 2px; word-break: normal; overflow-wrap: anywhere; }
+#set-modal .v small { font-size: 13px; line-height: 1.35; margin-top: 3px; }
+#set-modal .v:empty { display: none; }
+#set-modal .row > button { grid-column: 2; grid-row: 1 / span 2; min-height: 40px; padding: 0 16px; border-radius: 20px; font-size: 15px; }
+#set-modal .row > button + button { grid-row: auto; margin-top: 8px; }
+/* the library's place: the app's own folder is a long path nobody reads; its end, on one line */
+#set-modal .path { display: block; direction: rtl; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: 13px/1.4 ui-monospace, Menlo, monospace; color: rgba(255,255,255,.75); }
+#set-modal .foot { margin: 22px 4px 0; line-height: 1.5; }
