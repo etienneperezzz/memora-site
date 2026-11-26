@@ -397,20 +397,19 @@ function lbActions(item) {
   };
   // « Envoyer à » (the phone's strip under the media): the same share; a voice note goes as a video of its bars
   const send = document.getElementById('lb-send');
+  send.hidden = DEMO;   // the web demo: it would only download the file to the visitor's computer
   send.onclick = item.type !== 'audio' ? share.onclick : async () => {
     if (send.classList.contains('busy')) return;
     send.classList.add('busy');
-    const label = send.firstChild.textContent;
     try {
       if (native && window.MEMORA_NATIVE.shareVoiceVideo) {   // the phone: made natively, in a few seconds
-        send.firstChild.textContent = 'Vidéo…';
         try {
           const o = { ...(await voiceBars(murl(item.path))), lines: lbVoiceLines(item) };
           if (await window.MEMORA_NATIVE.shareVoiceVideo(currentSource, item.path, o, name.replace(/\.[^.]+$/, '') + '.mp4', lbShareText(item))) lbToast('Partagé');
           return;
         } catch (e) { console.warn('[voice video] native', e); }   // an app built before VoiceVideo.swift: the page makes it
       }
-      const blob = await voiceVideo(murl(item.path), lbVoiceLines(item), pct => { send.firstChild.textContent = `Vidéo ${pct} %`; });
+      const blob = await voiceVideo(murl(item.path), lbVoiceLines(item), null);
       const file = name.replace(/\.[^.]+$/, '') + (blob.type.includes('webm') ? '.webm' : '.mp4');
       if (native && window.MEMORA_NATIVE.shareFile) {
         if (await window.MEMORA_NATIVE.shareFile(blob, file, lbShareText(item))) lbToast('Partagé');
@@ -423,7 +422,7 @@ function lbActions(item) {
       }
     } catch (e) {
       if (e.name !== 'AbortError') { console.warn('[voice video]', e); share.onclick(); }   // no video here: the voice note itself
-    } finally { send.firstChild.textContent = label; send.classList.remove('busy'); }
+    } finally { send.classList.remove('busy'); }
   };
   // Enregistrer (phone): into the camera roll, with a confirmation.
   save.onclick = async () => {

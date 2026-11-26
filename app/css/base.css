@@ -519,11 +519,13 @@ html,body{
 .lb-ctrl .lb-seek::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
 /* « Envoyer à » strip under the media: phone only (mobile.css turns it on) */
 .lb-foot{display:none}
-.lb-send{display:flex;align-items:center;gap:8px;height:42px;padding:0 18px 0 20px;border:0;border-radius:999px;
-  background:#0eadff;color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.lb-send svg{width:17px;height:17px}
-.lb-send:active{transform:scale(.96)}
-.lb-send.busy{opacity:.6;pointer-events:none}
+.lb-send{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0 0 0 3px;border:0;border-radius:50%;
+  background:#0eadff;color:#fff;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.lb-send[hidden]{display:none}
+.lb-send svg{width:19px;height:19px}
+.lb-send:active{transform:scale(.92)}
+.lb-send.busy{pointer-events:none;animation:lbSendBusy .9s ease-in-out infinite alternate}   /* a voice note's video being made */
+@keyframes lbSendBusy{from{opacity:1}to{opacity:.45}}
 
 /* ── Selection bar ── */
 #sel-bar{

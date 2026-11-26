@@ -69,14 +69,14 @@ body:has(#lic-bar.on) { --under-dock: calc(var(--dock-h) + var(--dock-gap) + 52p
 /* viewer: header, info line and custom controls are overlays (the media fills the screen);
    chrome auto-hides during video playback and on a clean-display tap */
 #lightbox.fast::after { top: calc(var(--safe-top) + 10px); }
-/* « Envoyer à » under the media: the media area ends above it, so the button never covers a photo or a video */
-#lightbox { --lb-foot: calc(64px + var(--safe-bottom)); }
+/* a slim strip under the media (the media area ends above it, nothing covers a photo or a video):
+   the info line on the left, « Envoyer à » (paper plane) on the right */
+#lightbox { --lb-foot: calc(52px + var(--safe-bottom)); }
 #lightbox .lb-media-wrap { margin-bottom: var(--lb-foot); }
 #lightbox .lb-foot { display: flex; position: absolute; left: 0; right: 0; bottom: 0; z-index: 12; height: var(--lb-foot);
-  padding: 0 14px var(--safe-bottom); align-items: center; justify-content: flex-end; transition: opacity 220ms ease; }
-#lightbox .lb-ctrl { padding-bottom: 10px; }   /* in the slide, which already ends above the strip */
-#lightbox .lb-meta { bottom: calc(var(--lb-foot) + 8px); }
-#lightbox.has-video .lb-meta { bottom: calc(var(--lb-foot) + 62px); }
+  padding: 0 12px var(--safe-bottom); align-items: center; justify-content: flex-end; pointer-events: none; transition: opacity 220ms ease; }
+#lightbox .lb-ctrl { padding-bottom: 8px; }   /* in the slide, which already ends above the strip */
+#lightbox .lb-meta, #lightbox.has-video .lb-meta { bottom: calc(var(--safe-bottom) + 13px); right: 62px; }
 #lightbox.dragging .lb-foot { opacity: var(--lb-chrome, 1) !important; transition: none !important; }
 #lightbox.clean .lb-foot { opacity: 0; pointer-events: none; }
 #lb-toast { bottom: calc(var(--lb-foot) + 12px); }
