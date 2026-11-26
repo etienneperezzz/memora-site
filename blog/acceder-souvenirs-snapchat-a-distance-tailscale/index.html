@@ -53,6 +53,12 @@ table.check th{color:var(--fg);font-size:13px;text-transform:uppercase;letter-sp
 table.check small{color:var(--faint)}
 @media(max-width:600px){table.check{font-size:14px}table.check th:nth-child(3),table.check td:nth-child(3){display:none}}
 .sources{font-size:14px}
+article figure{margin:22px 0;text-align:center}
+article figure img{max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(20,10,50,.12)}
+article figcaption{font-size:14px;color:var(--faint);margin-top:8px}
+article figure.phone img{max-width:300px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}.duo figure{margin:0}
+.tip ul{margin:8px 0 0;padding-left:20px}
 .cta{margin:46px 0 10px;padding:26px;border-radius:20px;border:1px solid var(--line);
   background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface))}
 .cta h2{margin:0 0 6px;font-size:23px}.cta p{margin:0 0 16px;color:var(--muted)}
@@ -136,8 +142,11 @@ souvenirs. Chez toi, sur ton Wi-Fi, tu n'en as même pas besoin.</p>
 bibliothèque, prépare des vignettes légères et envoie les photos et vidéos à ton téléphone à la demande.</p>
 <h3>Sur un Mac ou un PC</h3>
 <p>Ouvre Memorizzz, va dans <b>Réglages</b>, puis <b>Accès depuis le téléphone</b>, et touche <b>Activer</b>. L'app
-affiche l'adresse de la machine et un <b>code</b> de 16 caractères. Tant que le partage est activé, l'ordinateur ne se
-met pas en veille. Si macOS te demande d'accepter les connexions entrantes pour Memorizzz, accepte.</p>
+affiche l'adresse de la machine et un <b>mot de passe</b> : un code généré pour toi, ou celui que tu choisis avec
+<b>Choisir</b>. Tant que le partage est activé, l'ordinateur ne se met pas en veille. Si macOS ou Windows te demande
+d'accepter les connexions entrantes pour Memorizzz, accepte.</p>
+<p>Avec un PC et un iPhone, suis notre <a href="/blog/souvenirs-snapchat-pc-iphone-tailscale/">tuto en images</a>,
+capture par capture.</p>
 <h3>Sur un Raspberry Pi</h3>
 <p>Branche le disque de ta bibliothèque, puis lance cette commande en indiquant le dossier qui contient
 <code>Memories_processed</code> :</p>
@@ -180,8 +189,8 @@ depuis l'extérieur. C'est exactement ce que Tailscale te permet d'éviter.</div
 <ul>
   <li><b>« Serveur injoignable »</b> : vérifie que Tailscale est activé sur le téléphone, que la machine de la maison
   est allumée et connectée à Tailscale, et que tu as bien tapé son adresse en <code>100.</code>.</li>
-  <li><b>« Code incorrect »</b> : recopie le code affiché par Memorizzz sur la machine. Les tirets et les majuscules
-  ne comptent pas.</li>
+  <li><b>« Code incorrect »</b> : recopie le mot de passe affiché par Memorizzz sur la machine. Les tirets, les
+  espaces et les majuscules ne comptent pas.</li>
   <li><b>« L'accès depuis le téléphone est-il activé ? »</b> : sur Mac ou PC, retourne dans Réglages et active
   l'accès.</li>
   <li><b>Les vidéos sont lentes hors de chez toi</b> : elles dépendent du débit d'envoi de ta box, souvent bien plus

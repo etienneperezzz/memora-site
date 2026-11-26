@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuto en images : voir les souvenirs Snapchat de ton PC sur ton iPhone, partout, avec Tailscale | Memorizzz</title>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="fdfa4142-d813-4bf0-80f2-9886a44bc60c" data-domains="memorizzz.com" data-exclude-search="true"></script>
+<meta name="description" content="Ta bibliothèque Memorizzz reste sur ton PC, et tu la consultes depuis l&#x27;app iPhone en Wi-Fi ou en 4G, sans cloud. Le pas à pas en captures : Tailscale sur le PC et l&#x27;iPhone, l&#x27;accès depuis le téléphone dans Memorizzz, puis la connexion.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://memorizzz.com/blog/souvenirs-snapchat-pc-iphone-tailscale/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Memorizzz">
+<meta property="og:title" content="Tuto en images : voir les souvenirs Snapchat de ton PC sur ton iPhone, partout, avec Tailscale | Memorizzz">
+<meta property="og:description" content="Ta bibliothèque Memorizzz reste sur ton PC, et tu la consultes depuis l&#x27;app iPhone en Wi-Fi ou en 4G, sans cloud. Le pas à pas en captures : Tailscale sur le PC et l&#x27;iPhone, l&#x27;accès depuis le téléphone dans Memorizzz, puis la connexion.">
+<meta property="og:url" content="https://memorizzz.com/blog/souvenirs-snapchat-pc-iphone-tailscale/">
+<meta property="og:image" content="https://memorizzz.com/og.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BlogPosting", "headline": "Tuto en images : voir les souvenirs Snapchat de ton PC sur ton iPhone, partout, avec Tailscale", "description": "Ta bibliothèque Memorizzz reste sur ton PC, et tu la consultes depuis l'app iPhone en Wi-Fi ou en 4G, sans cloud. Le pas à pas en captures : Tailscale sur le PC et l'iPhone, l'accès depuis le téléphone dans Memorizzz, puis la connexion.", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "inLanguage": "fr", "mainEntityOfPage": "https://memorizzz.com/blog/souvenirs-snapchat-pc-iphone-tailscale/", "image": "https://memorizzz.com/og.png", "author": {"@type": "Organization", "name": "Memorizzz", "url": "https://memorizzz.com/"}, "publisher": {"@type": "Organization", "name": "Memorizzz", "url": "https://memorizzz.com/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://memorizzz.com/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://memorizzz.com/blog/"}, {"@type": "ListItem", "position": 3, "name": "Tuto en images : voir les souvenirs Snapchat de ton PC sur ton iPhone, partout, avec Tailscale", "item": "https://memorizzz.com/blog/souvenirs-snapchat-pc-iphone-tailscale/"}]}]}</script>
+<style>
+:root{--bg:#faf8fc;--surface:#fff;--line:rgba(26,14,54,.11);--fg:#141019;--muted:#4f495f;--faint:#8a8498;--accent:#6a34f0;
+  --sans:'Hanken Grotesk',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--disp:'Bricolage Grotesque','Hanken Grotesk',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0a10;--surface:#14131d;--line:rgba(255,255,255,.09);
+  --fg:#f3f1f8;--muted:#b4b1c2;--faint:#726d84;--accent:#b398ff;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.7 var(--sans)}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px}
+.brand{font-family:var(--disp);font-weight:700;font-size:20px;color:var(--fg);text-decoration:none;display:inline-flex;align-items:center;gap:9px}
+header.top nav{display:flex;gap:18px;font-size:15px}
+header.top nav a{color:var(--muted);text-decoration:none}header.top nav a:hover{color:var(--fg)}
+.crumbs{font-size:14px;color:var(--faint);margin:26px 0 0}.crumbs a{color:var(--faint)}
+h1{font-family:var(--disp);font-size:clamp(28px,5vw,42px);line-height:1.15;margin:12px 0 10px}
+.meta{font-size:14px;color:var(--faint)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+article h2{font-family:var(--disp);font-size:25px;line-height:1.25;margin:40px 0 8px}
+article h3{font-size:18px;margin:24px 0 4px}
+article p,article li{color:var(--muted)}article b,article strong{color:var(--fg)}
+article a{color:var(--accent)}
+.lede{font-size:19px;color:var(--fg)!important}
+code{font-size:.88em;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.tip{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:14px 18px;margin:18px 0;color:var(--muted)}
+table.check{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px}
+table.check th,table.check td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top;color:var(--muted)}
+table.check th{color:var(--fg);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+table.check small{color:var(--faint)}
+@media(max-width:600px){table.check{font-size:14px}table.check th:nth-child(3),table.check td:nth-child(3){display:none}}
+.sources{font-size:14px}
+article figure{margin:22px 0;text-align:center}
+article figure img{max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(20,10,50,.12)}
+article figcaption{font-size:14px;color:var(--faint);margin-top:8px}
+article figure.phone img{max-width:300px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}.duo figure{margin:0}
+.tip ul{margin:8px 0 0;padding-left:20px}
+.cta{margin:46px 0 10px;padding:26px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface))}
+.cta h2{margin:0 0 6px;font-size:23px}.cta p{margin:0 0 16px;color:var(--muted)}
+.btn{display:inline-block;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#190a33}}
+.posts{list-style:none;padding:0;margin:26px 0;display:flex;flex-direction:column;gap:14px}
+.posts a{display:block;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;text-decoration:none}
+.posts a:hover{border-color:var(--accent)}
+.posts h2{font-family:var(--disp);font-size:22px;line-height:1.25;color:var(--fg);margin:6px 0}
+.posts p{color:var(--muted);margin:0 0 8px;font-size:16px}
+footer{border-top:1px solid var(--line);margin-top:60px;padding:26px 0 40px;font-size:13.5px;color:var(--faint)}
+footer a{color:var(--faint)}footer .links{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/"><img src="/img/logo.png" alt="" width="28" height="28">Memorizzz</a>
+  <nav><a href="/#features">Fonctionnalités</a><a href="/blog/">Blog</a><a href="/#price">Télécharger</a></nav></div></header>
+<main class="wrap">
+<p class="crumbs"><a href="/">Accueil</a> › <a href="/blog/">Blog</a></p><article><span class="tag">Tuto</span><h1>Tuto en images : voir les souvenirs Snapchat de ton PC sur ton iPhone, partout, avec Tailscale</h1><p class="meta">Publié le 26 novembre 2026 · 6 min de lecture</p><p class="lede">Tes Souvenirs Snapchat sont triés sur ton PC, mais c'est sur ton iPhone que tu as envie de les
+revoir. Dans ce tuto, on relie les deux en 4 étapes, captures à l'appui : tes photos et vidéos restent sur le PC, et
+l'app Memorizzz de l'iPhone les affiche chez toi comme en déplacement.</p>
+
+<div class="tip"><b>Ce qu'il te faut</b>
+<ul>
+  <li>Un PC (Windows 10 ou 11) avec Memorizzz et ta bibliothèque déjà importée.</li>
+  <li>Un iPhone avec l'app Memorizzz.</li>
+  <li>Un compte Google, Apple, Microsoft ou GitHub, pour te connecter à Tailscale (gratuit).</li>
+  <li>Une dizaine de minutes.</li>
+</ul></div>
+
+<p>Tu as un Mac, un Raspberry Pi ou un NAS plutôt qu'un PC ? Le principe est le même, tout est dans notre
+<a href="/blog/acceder-souvenirs-snapchat-a-distance-tailscale/">guide complet de l'accès à distance</a>.</p>
+
+<h2>Comment ça marche, en deux mots</h2>
+<p>Le PC fait office de petit serveur : Memorizzz y lit ta bibliothèque et l'envoie à ton iPhone à la demande.
+Chez toi, les deux se parlent par ton Wi-Fi. Dehors, c'est <b>Tailscale</b> qui fait le lien : il crée un réseau privé
+et chiffré entre tes propres appareils, comme si ton iPhone était toujours à la maison. Rien n'est ouvert sur
+Internet, et tes souvenirs ne passent par aucun cloud.</p>
+
+<h2>Étape 1 : installer Tailscale sur le PC</h2>
+<ol>
+  <li>Va sur <a href="https://tailscale.com/download/windows" rel="noopener">tailscale.com/download/windows</a> et
+  clique sur <b>Download Tailscale for Windows</b>.</li>
+  <li>Lance le fichier téléchargé et suis l'installation.</li>
+  <li>L'icône Tailscale apparaît près de l'horloge, en bas à droite. Clique dessus, puis sur <b>Log in</b>, et
+  connecte-toi avec ton compte Google, Apple, Microsoft ou GitHub.</li>
+</ol>
+<figure><img src="/blog/img/iphone-pc-tailscale/3-tailscale-windows.png" width="800" height="460" loading="lazy"
+  alt="La page de téléchargement de Tailscale, avec l'onglet Windows sélectionné et le bouton Download Tailscale for Windows">
+  <figcaption>La page officielle de Tailscale : choisis Windows, puis le gros bouton blanc.</figcaption></figure>
+<p>Ton PC fait maintenant partie de ton réseau Tailscale et reçoit une adresse qui commence par <code>100.</code>.
+Tu n'as pas besoin de la noter : Memorizzz te l'affichera à l'étape 3.</p>
+<div class="tip"><b>Évite la déconnexion surprise.</b> Par défaut, Tailscale redemande une connexion à chaque appareil
+au bout de quelques mois. Pour ton PC, ouvre la console sur <a href="https://login.tailscale.com/admin/machines"
+rel="noopener">login.tailscale.com</a>, onglet <b>Machines</b>, puis, dans le menu <b>…</b> de ton PC, choisis
+<b>Disable key expiry</b>. Sinon, il risque de disparaître de ton réseau le jour où tu es loin de chez toi.</div>
+
+<h2>Étape 2 : installer Tailscale sur l'iPhone</h2>
+<ol>
+  <li>Installe l'app <a href="https://apps.apple.com/fr/app/tailscale/id1470499037" rel="noopener">Tailscale depuis
+  l'App Store</a>. Elle est gratuite.</li>
+  <li>Ouvre-la et connecte-toi avec <b>le même compte</b> qu'à l'étape 1. C'est ce qui met ton iPhone et ton PC
+  dans le même réseau.</li>
+  <li>iOS te demande d'autoriser l'ajout d'une configuration VPN : touche <b>Autoriser</b>, puis confirme avec
+  Face ID ou ton code.</li>
+  <li>Active l'interrupteur en haut de l'app. Ton PC apparaît dans la liste des appareils.</li>
+</ol>
+<figure><img src="/blog/img/iphone-pc-tailscale/4-tailscale-app-store.png" width="518" height="305" loading="lazy"
+  style="max-width:420px" alt="La fiche de l'app Tailscale sur l'App Store : gratuite, catégorie Utilitaires">
+  <figcaption>L'app Tailscale sur l'App Store.</figcaption></figure>
+<p>Tu peux laisser Tailscale toujours activé (il consomme très peu) ou ne l'allumer qu'au moment de regarder tes
+souvenirs. Chez toi, sur ton Wi-Fi, tu n'en as même pas besoin.</p>
+
+<h2>Étape 3 : ouvrir l'accès depuis le téléphone dans Memorizzz sur le PC</h2>
+<ol>
+  <li>Ouvre Memorizzz sur le PC et clique sur la roue dentée, en haut à droite, pour ouvrir les <b>Réglages</b>.</li>
+  <li>Dans <b>Accès depuis le téléphone</b>, clique sur <b>Activer</b>.</li>
+</ol>
+<figure><img src="/blog/img/iphone-pc-tailscale/1-reglages-desactive.png" width="560" height="348" loading="lazy"
+  alt="Les réglages de Memorizzz sur PC, avec la section Accès depuis le téléphone désactivée et le bouton jaune Activer">
+  <figcaption>Le partage est désactivé tant que tu ne l'as pas activé toi-même.</figcaption></figure>
+<p>Memorizzz affiche alors deux choses à garder sous la main :</p>
+<ul>
+  <li><b>L'adresse</b> de ton PC. Celle marquée <b>Tailscale / VPN</b>, en <code>100.</code>, marche partout. Celle
+  marquée <b>Réseau local</b>, en <code>192.168.</code>, ne marche que chez toi.</li>
+  <li><b>Le mot de passe</b>, un code généré pour toi. Tu peux en choisir un plus facile à retenir avec
+  <b>Choisir</b> : au moins 10 caractères, des lettres et au moins un chiffre.</li>
+</ul>
+<figure><img src="/blog/img/iphone-pc-tailscale/2-reglages-active.png" width="552" height="280" loading="lazy"
+  alt="L'accès depuis le téléphone activé : l'adresse en réseau local, l'adresse Tailscale en 100. et le mot de passe">
+  <figcaption>Ici, l'adresse à utiliser partout est <code>100.101.102.103</code> (la tienne sera
+  différente).</figcaption></figure>
+<div class="tip"><b>Windows te demande d'autoriser Memorizzz sur le réseau ?</b> Accepte, sinon ton iPhone ne pourra
+pas joindre le PC. Tant que l'accès est activé, Memorizzz empêche aussi le PC de se mettre en veille. Sur un portable,
+laisse-le branché et le capot ouvert.</div>
+
+<h2>Étape 4 : se connecter depuis l'app Memorizzz de l'iPhone</h2>
+<ol>
+  <li>Vérifie que Tailscale est activé sur l'iPhone si tu n'es pas chez toi.</li>
+  <li>Ouvre Memorizzz. Au premier lancement, à l'écran <b>Tu as déjà utilisé Memorizzz ?</b>, choisis
+  <b>Sur un serveur</b>. Si tu utilisais déjà l'app avec une bibliothèque sur l'iPhone, passe par <b>Réglages</b>,
+  ligne <b>Serveur</b>, puis <b>Se connecter</b>.</li>
+  <li>Tape l'adresse <code>100.</code> de ton PC et le mot de passe affichés à l'étape 3, puis touche
+  <b>Se connecter</b>. Pas besoin d'ajouter <code>http://</code> ni <code>:8765</code>, l'app s'en charge.</li>
+</ol>
+<div class="duo">
+  <figure><img src="/blog/img/iphone-pc-tailscale/5-iphone-sur-un-serveur.png" width="600" height="1152" loading="lazy"
+    alt="L'écran Tu as déjà utilisé Memorizzz ? de l'app iPhone, avec le choix Sur un serveur en bas">
+    <figcaption>Choisis « Sur un serveur ».</figcaption></figure>
+  <figure><img src="/blog/img/iphone-pc-tailscale/6-iphone-connexion.png" width="600" height="1040" loading="lazy"
+    alt="L'écran Ta bibliothèque sur un serveur, rempli avec l'adresse 100.101.102.103 et le mot de passe">
+    <figcaption>L'adresse en 100., le mot de passe, et c'est parti.</figcaption></figure>
+</div>
+<p>L'iPhone retient le serveur : les fois suivantes, tu ouvres l'app et ta galerie est là.</p>
+
+<h2>Et voilà : ta bibliothèque du PC dans ta poche</h2>
+<figure class="phone"><img src="/blog/img/iphone-pc-tailscale/7-iphone-galerie.png" width="600" height="1040" loading="lazy"
+  alt="La galerie Memorizzz sur iPhone : souvenirs triés par jour et cartes Rétro en haut">
+  <figcaption>Les souvenirs du PC, sur l'iPhone, triés par jour.</figcaption></figure>
+<p>Tout y est, comme sur le PC : tes souvenirs triés par jour, les Chat Media, la carte, les stats et tes
+conversations. Les vidéos se lisent en streaming, sans tout télécharger. Et quand tu partages un souvenir ou
+l'enregistres dans Photos, l'app récupère le fichier d'origine, avec sa vraie date et son lieu.</p>
+
+<h2>Si ça ne marche pas</h2>
+<ul>
+  <li><b>« Serveur injoignable »</b> : le PC est-il allumé et réveillé ? Tailscale est-il activé sur l'iPhone et sur
+  le PC (icône près de l'horloge) ? As-tu bien tapé l'adresse en <code>100.</code> ? Si ça marche chez toi en Wi-Fi
+  mais pas dehors, c'est Tailscale qu'il faut regarder.</li>
+  <li><b>« Code incorrect »</b> : recopie le mot de passe affiché dans les réglages du PC. Les majuscules, les
+  espaces et les tirets ne comptent pas.</li>
+  <li><b>« L'accès depuis le téléphone est-il activé ? »</b> : retourne dans les réglages de Memorizzz sur le PC et
+  clique sur <b>Activer</b>.</li>
+  <li><b>« Trop d'essais »</b> : après plusieurs mauvais mots de passe, le PC bloque les essais pendant une minute.
+  Attends un peu et recommence.</li>
+  <li><b>Les vidéos sont lentes en 4G</b> : elles dépendent du débit d'envoi de ta box, souvent bien plus faible que
+  son débit de réception. Les photos et les vignettes restent rapides.</li>
+</ul>
+
+<h2>Et la sécurité ?</h2>
+<ul>
+  <li>L'accès est <b>fermé par défaut</b> : il ne s'ouvre que quand tu cliques sur Activer, et se referme avec
+  Désactiver.</li>
+  <li>Memorizzz ne répond qu'à ton réseau local et à ton réseau Tailscale. Une connexion venue d'Internet est
+  refusée.</li>
+  <li>Sans le mot de passe, on ne voit rien. Un doute ? Clique sur <b>Nouveau code</b> : les téléphones déjà connectés
+  devront saisir le nouveau.</li>
+  <li>N'ouvre jamais de port sur ta box pour accéder à tes souvenirs de l'extérieur : c'est justement ce que Tailscale
+  t'évite.</li>
+</ul>
+<p>Dernier conseil : ton PC devient l'endroit où vivent tes souvenirs. Garde une deuxième copie ailleurs, comme
+expliqué dans notre article pour
+<a href="/blog/sauvegarder-souvenirs-snapchat-disque-externe/">sauvegarder ses souvenirs Snapchat sur un disque
+externe</a>.</p></article><section class="cta"><h2>Garde tes souvenirs Snapchat, pour de bon</h2><p>Memorizzz transforme ton export en galerie triée par jour, en carte et en conversations, sur ton ordinateur. Gratuit pour commencer, puis dès 5 € une seule fois.</p><a class="btn" href="/#price">Télécharger Memorizzz</a></section>
+</main>
+<footer><div class="wrap">
+  <div class="links"><a href="/">Accueil</a><a href="/blog/">Blog</a><a href="/mentions-legales/">Mentions légales</a><a href="/mentions-legales/#confidentialite">Confidentialité</a><a href="/mentions-legales/#cgv">CGV</a></div>
+  Memorizzz est un outil indépendant, non affilié à Snap Inc. et non approuvé par Snap Inc. Snapchat est une marque de Snap Inc.
+</div></footer>
+</body>
+</html>
